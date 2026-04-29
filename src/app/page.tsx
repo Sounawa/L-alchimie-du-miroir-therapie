@@ -68,7 +68,7 @@ const ALL_NAV_IDS = NAV_GROUPS.flatMap(g => g.items.map(i => i.id));
 /* ────────────────────────────────────────────────
    Fade-in wrapper
    ──────────────────────────────────────────────── */
-function useInView(threshold = 0.08) {
+function useInView(threshold = 0.01) {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   useEffect(() => {
@@ -76,7 +76,7 @@ function useInView(threshold = 0.08) {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setIsInView(true); obs.unobserve(el); } },
-      { threshold }
+      { threshold, rootMargin: '200px 0px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
