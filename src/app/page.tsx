@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import CoverPage from '@/components/book/CoverPage';
 import Sommaire from '@/components/book/Sommaire';
 import Foundations from '@/components/book/Foundations';
@@ -107,19 +107,17 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState('sommaire');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
-  );
-  /* ── responsive ── */
-  useEffect(() => {
+  // Use useSyncExternalStore to avoid hydration mismatch + setState-in-effect lint error.
+  // On server/SSR, getSnapshot returns false (no mobile sidebar → matches server HTML).
+  // On client, getSnapshot subscribes to matchMedia and returns the live value.
+  const subscribe = useCallback((callback: () => void) => {
     const mql = window.matchMedia('(max-width: 1023px)');
-    const handler = (e: MediaQueryListEvent) => {
-      setIsMobile(e.matches);
-      if (e.matches) setIsSidebarOpen(false);
-    };
-    mql.addEventListener('change', handler);
-    return () => mql.removeEventListener('change', handler);
+    mql.addEventListener('change', callback);
+    return () => mql.removeEventListener('change', callback);
   }, []);
+  const getSnapshot = useCallback(() => window.matchMedia('(max-width: 1023px)').matches, []);
+  const getServerSnapshot = useCallback(() => false, []); // Always desktop on server
+  const isMobile = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   /* ── scroll tracking ── */
   useEffect(() => {
@@ -292,6 +290,8 @@ export default function Home() {
       }}>
 
         {/* ─── SIDEBAR (desktop) ─── */}
+        {/* Both server and first client render agree isMobile=false → sidebar shown.
+            After mount, useEffect sets isMobile correctly on mobile (hides sidebar + shows mobile bar). */}
         {!isMobile && (
           <aside style={{
             position: 'sticky',
