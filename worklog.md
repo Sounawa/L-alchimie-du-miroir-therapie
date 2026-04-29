@@ -187,3 +187,88 @@ The "L'Alchimie du Miroir" therapeutic manual web application is fully functiona
 5. Add dark/light theme toggle for reading comfort
 6. Consider generating a PDF version using the existing print CSS
 7. Add audio recording/playback for Munajat journal entries
+
+---
+Task ID: 11
+Agent: web-dev-review-2
+Task: Add Protocols E+F, Save Journal feature, keyboard navigation, styling enhancements
+
+Work Log:
+- Started dev server, confirmed 200 OK and clean lint
+- Performed QA with agent-browser (10+ screenshots across all sections)
+- VLM analysis: cover 7/10, Protocol E 8/10, Journal panel 7.5/10
+- No console errors detected
+- Launched 3 parallel development agents
+
+New Content Created:
+1. ProtocolE.tsx — Estime de Soi & Honte Toxique (6 indications, 4 phases, 4 timers, Arabic verses Al-Isra 17:70, Al-Hujurat 49:12, Al-Baqarah 2:286, Al-A'raf 7:26)
+2. ProtocolF.tsx — Deuil & Perte (6 indications, 4 phases, 4 timers, Arabic verses Al-Imran 3:185, Al-Baqarah 2:156, Ash-Sharh 94:5-6, Az-Zumar 39:53)
+
+New Features:
+3. useLocalStorage hook — SSR-safe generic hook with cross-tab sync via useSyncExternalStore
+4. SavedJournal.tsx — slide-in panel reading from localStorage "alchimie-journal" key, expand/collapse entries, clear with 4s confirmation timer, empty state message
+5. Journal nav button + slide-in panel (380px desktop, 100% mobile) with overlay backdrop
+6. Keyboard navigation: ArrowLeft/Right to cycle sections, Escape to close panels
+7. Micro-interactions: shimmer animation on cover title, breathing dot on progress bar, nav flash on section change
+
+Styling Enhancements:
+8. Cover title shimmer — animated gold gradient sweep (6s CSS cycle)
+9. Breathing indicator — pulsing gold dot following scroll progress
+10. Nav flash — brief highlight animation when active section changes
+11. Journal panel slide-in animation with backdrop fade
+
+Verification Results:
+- 24 timer buttons confirmed (6 protocols × 4 phases)
+- 11 nav buttons: Accueil, Sommaire, Fondations, A-F, Journal
+- All protocols render correctly with proper 4-phase structure
+- Journal panel opens/closes correctly
+- ESLint: 0 errors
+- VLM ratings: Protocol E 8/10, Journal 7.5/10
+
+Stage Summary:
+- App now has 9 content sections (Cover, Sommaire, Foundations, Protocols A-F)
+- 24 total interactive meditation timers
+- localStorage-based journal persistence
+- Keyboard-accessible navigation
+- Rich micro-interactions and visual polish
+
+---
+Task ID: 11b
+Agent: web-dev-review-2
+Task: Final assessment and recommendations
+
+## Current Project Status / Assessment
+
+The application is now substantially complete with extensive content and interactivity:
+- **22 React components** in /src/components/book/ + 3 hooks in /src/hooks/
+- **9 content sections**: Cover, Sommaire, Foundations (4 chapters), Protocols A-F
+- **24 interactive meditation timers** with sound notifications and elapsed time
+- **localStorage journal** with slide-in panel for saved entries
+- **Keyboard navigation** (arrows + escape)
+- **Rich visual design**: dark theme, gold accents, 4 fonts, Islamic decorative elements, shimmer/breathing micro-animations
+
+## Completed This Round
+- Added Protocol E (Estime de Soi / Honte) — complete 4-phase protocol
+- Added Protocol F (Deuil & Perte) — complete 4-phase protocol with grief stages table
+- Implemented Save Progress feature with localStorage persistence
+- Created SavedJournal slide-in panel with card-based entry display
+- Added keyboard navigation (arrow keys + escape)
+- Added micro-interactions: title shimmer, breathing dot, nav flash
+- All verified via agent-browser + VLM analysis
+
+## Unresolved Issues / Risks
+1. Dev server process instability in sandbox environment (not a code issue)
+2. Journal entries persist in localStorage but no server-side persistence yet
+3. Protocols G-K, H-J (Peur, Solitude, Burnout, Culpabilité, Addictions) not yet implemented
+4. Part III Annexes (Glossaire, Bibliographie, Scripts Audio, Certificat) not yet implemented
+5. No print-specific optimization (CSS exists but not tested end-to-end)
+
+## Priority Recommendations for Next Phase
+1. Add remaining protocols: G (Peur/Phobies), H (Solitude), I (Addictions), J (Burnout), K (Culpabilité)
+2. Build Part III: Annexes section with Glossary, Bibliography, Audio Script references
+3. Connect journal to Prisma DB for server-side persistence
+4. Add "Sauvegarder" button to Munajat textareas that saves to localStorage journal
+5. Add a search feature to find content across all protocols
+6. Implement print optimization with page-break-before for each section
+7. Add audio playback for the crisis script in Protocol B (TTS integration)
+8. Consider adding a dark/light theme toggle

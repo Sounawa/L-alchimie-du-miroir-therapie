@@ -203,6 +203,94 @@
   background: #C9A227;
 }
 
+/* ========== Shimmer effect for cover title ========== */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    #8B6914 0%,
+    #D4AF37 20%,
+    #F5F0E1 40%,
+    #D4AF37 60%,
+    #C9A227 80%,
+    #8B6914 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s ease-in-out infinite;
+}
+
+/* ========== Breathing indicator dot ========== */
+@keyframes breathing-glow {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px rgba(201, 162, 39, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.6), 0 0 24px rgba(201, 162, 39, 0.3);
+    transform: scale(1.3);
+  }
+}
+
+.breathing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D4AF37;
+  animation: breathing-glow 3s ease-in-out infinite;
+}
+
+/* ========== Nav item flash on change ========== */
+@keyframes nav-flash {
+  0% {
+    background-color: rgba(201, 162, 39, 0.25);
+  }
+  100% {
+    background-color: rgba(201, 162, 39, 0.12);
+  }
+}
+
+.nav-flash {
+  animation: nav-flash 0.5s ease-out;
+}
+
+/* ========== Journal panel slide-in ========== */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-overlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.journal-panel-enter {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+.journal-overlay-enter {
+  animation: fade-in-overlay 0.25s ease-out forwards;
+}
+
 /* Print styles */
 @media print {
   body {

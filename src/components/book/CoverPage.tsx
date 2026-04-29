@@ -89,19 +89,18 @@ export default function CoverPage() {
           🪞
         </div>
 
-        {/* Main title */}
-        <h1 style={{
-          fontFamily: '"Amiri", serif',
-          fontSize: 'clamp(2.2rem, 6vw, 3.5rem)',
-          fontWeight: 700,
-          textAlign: 'center',
-          lineHeight: 1.3,
-          margin: '0 0 1rem 0',
-          background: 'linear-gradient(135deg, #D4AF37 0%, #C9A227 30%, #F5F0E1 50%, #C9A227 70%, #8B6914 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
+        {/* Main title with shimmer animation */}
+        <h1
+          className="shimmer-gold"
+          style={{
+            fontFamily: '"Amiri", serif',
+            fontSize: 'clamp(2.2rem, 6vw, 3.5rem)',
+            fontWeight: 700,
+            textAlign: 'center',
+            lineHeight: 1.3,
+            margin: '0 0 1rem 0',
+          }}
+        >
           L&apos;Alchimie du Miroir
         </h1>
 

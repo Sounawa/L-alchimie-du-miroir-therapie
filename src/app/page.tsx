@@ -8,6 +8,9 @@ import ProtocolA from '@/components/book/ProtocolA';
 import ProtocolB from '@/components/book/ProtocolB';
 import ProtocolC from '@/components/book/ProtocolC';
 import ProtocolD from '@/components/book/ProtocolD';
+import ProtocolE from '@/components/book/ProtocolE';
+import ProtocolF from '@/components/book/ProtocolF';
+import SavedJournal from '@/components/book/SavedJournal';
 
 // Navigation items
 const NAV_ITEMS = [
@@ -18,6 +21,8 @@ const NAV_ITEMS = [
   { id: 'protocole-b', label: 'B · Anxiété' },
   { id: 'protocole-c', label: 'C · Dépression' },
   { id: 'protocole-d', label: 'D · Colère' },
+  { id: 'protocole-e', label: 'E · Estime' },
+  { id: 'protocole-f', label: 'F · Deuil' },
 ];
 
 // Custom hook: detect if element is in viewport (fires once)
@@ -66,7 +71,9 @@ function FadeInSection({ children }: { children: React.ReactNode }) {
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isJournalOpen, setIsJournalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('cover');
+  const [prevActiveSection, setPrevActiveSection] = useState('cover');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -107,20 +114,62 @@ export default function Home() {
       });
 
       const current = sections.find(s => s.top >= -200 && s.top < 200);
-      if (current) setActiveSection(current.id);
+      if (current && current.id !== activeSection) {
+        setPrevActiveSection(activeSection);
+        setActiveSection(current.id);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [activeSection]);
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setIsMenuOpen(false);
     }
-  };
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape: close journal panel or mobile menu
+      if (e.key === 'Escape') {
+        if (isJournalOpen) {
+          setIsJournalOpen(false);
+          return;
+        }
+        if (isMenuOpen) {
+          setIsMenuOpen(false);
+          return;
+        }
+      }
+
+      // ArrowLeft / ArrowRight: navigate sections
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const currentIndex = NAV_ITEMS.findIndex(item => item.id === activeSection);
+        if (currentIndex === -1) return;
+
+        let nextIndex: number;
+        if (e.key === 'ArrowRight') {
+          nextIndex = currentIndex < NAV_ITEMS.length - 1 ? currentIndex + 1 : 0;
+        } else {
+          nextIndex = currentIndex > 0 ? currentIndex - 1 : NAV_ITEMS.length - 1;
+        }
+
+        const nextItem = NAV_ITEMS[nextIndex];
+        if (nextItem) {
+          e.preventDefault();
+          scrollToSection(nextItem.id);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSection, isJournalOpen, isMenuOpen, scrollToSection]);
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -152,6 +201,21 @@ export default function Home() {
           borderRadius: '0 2px 2px 0',
         }} />
       </div>
+
+      {/* Breathing indicator near progress bar */}
+      {isScrolled && (
+        <div style={{
+          position: 'fixed',
+          top: '8px',
+          left: `${Math.max(scrollProgress, 5)}%`,
+          transform: 'translateX(-50%)',
+          zIndex: 102,
+          pointerEvents: 'none',
+          transition: 'left 0.15s ease-out',
+        }}>
+          <div className="breathing-dot" />
+        </div>
+      )}
 
       {/* Navigation Bar */}
       <nav style={{
@@ -234,29 +298,84 @@ export default function Home() {
                     transition: 'all 0.2s ease',
                     whiteSpace: 'nowrap',
                   }}
+                  className={
+                    activeSection === item.id && prevActiveSection !== item.id
+                      ? 'nav-flash'
+                      : undefined
+                  }
                 >
                   {item.label}
                 </button>
               ))}
+
+              {/* Journal Button */}
+              <button
+                onClick={() => setIsJournalOpen(true)}
+                style={{
+                  background: isJournalOpen
+                    ? 'rgba(201, 162, 39, 0.15)'
+                    : 'rgba(201, 162, 39, 0.06)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  borderRadius: '8px',
+                  padding: '0.4rem 0.75rem',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: '#D4AF37',
+                  fontFamily: '"Inter", sans-serif',
+                  letterSpacing: '0.02em',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  marginLeft: '0.35rem',
+                }}
+              >
+                📜 Journal
+              </button>
             </div>
           )}
 
-          {/* Mobile Menu Button — only shown on screens < 768px */}
+          {/* Mobile controls */}
           {isMobile && (
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              style={{
-                background: 'none',
-                border: '1px solid rgba(201, 162, 39, 0.3)',
-                borderRadius: '8px',
-                padding: '0.4rem 0.6rem',
-                cursor: 'pointer',
-                color: '#C9A227',
-                fontSize: '1.2rem',
-              }}
-            >
-              {isMenuOpen ? '✕' : '☰'}
-            </button>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}>
+              {/* Journal Button (mobile) */}
+              <button
+                onClick={() => setIsJournalOpen(true)}
+                aria-label="Ouvrir le journal"
+                style={{
+                  background: 'rgba(201, 162, 39, 0.06)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  borderRadius: '8px',
+                  padding: '0.4rem 0.6rem',
+                  cursor: 'pointer',
+                  color: '#D4AF37',
+                  fontSize: '0.9rem',
+                  lineHeight: 1,
+                }}
+              >
+                📜
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(201, 162, 39, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.4rem 0.6rem',
+                  cursor: 'pointer',
+                  color: '#C9A227',
+                  fontSize: '1.2rem',
+                }}
+              >
+                {isMenuOpen ? '✕' : '☰'}
+              </button>
+            </div>
           )}
         </div>
 
@@ -296,6 +415,70 @@ export default function Home() {
           </div>
         )}
       </nav>
+
+      {/* Journal Panel Overlay */}
+      {isJournalOpen && (
+        <div
+          className="journal-overlay-enter"
+          onClick={() => setIsJournalOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 199,
+          }}
+        />
+      )}
+
+      {/* Journal Panel */}
+      {isJournalOpen && (
+        <div
+          className="journal-panel-enter"
+          style={{
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: isMobile ? '100%' : '380px',
+            background: 'rgba(22, 27, 34, 0.98)',
+            backdropFilter: 'blur(16px)',
+            borderLeft: '1px solid rgba(201, 162, 39, 0.2)',
+            zIndex: 200,
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.4)',
+          }}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setIsJournalOpen(false)}
+            aria-label="Fermer le journal"
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'rgba(201, 162, 39, 0.08)',
+              border: '1px solid rgba(201, 162, 39, 0.2)',
+              borderRadius: '8px',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#D4AF37',
+              fontSize: '1rem',
+              padding: 0,
+              lineHeight: 1,
+              transition: 'background 0.2s ease',
+              zIndex: 1,
+            }}
+          >
+            ✕
+          </button>
+          <SavedJournal />
+        </div>
+      )}
 
       {/* Main Content */}
       <main style={{ flex: 1 }}>
@@ -343,6 +526,18 @@ export default function Home() {
           <FadeInSection>
             <div id="protocole-d">
               <ProtocolD />
+            </div>
+          </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-e">
+              <ProtocolE />
+            </div>
+          </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-f">
+              <ProtocolF />
             </div>
           </FadeInSection>
         </div>
