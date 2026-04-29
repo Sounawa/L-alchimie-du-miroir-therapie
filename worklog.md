@@ -528,3 +528,53 @@ Navigation completely redesigned. The app now uses a professional sidebar layout
 3. Build Part III: Annexes section
 4. Add dark/light theme toggle
 5. Continue styling improvements across all components
+
+---
+Task ID: 18
+Agent: web-dev-review-3
+Task: Fix GitHub Pages build error and hydration mismatch; QA testing
+
+Work Log:
+- Reviewed worklog.md — project has 30 components, 15 sections, 48 timers, sidebar navigation
+- Started dev server (200 OK), ran agent-browser QA screenshots
+- VLM analysis of cover: 8/10, sommaire: 7/10 (sidebar not visible in viewport)
+- Fixed GitHub Pages build error: deleted /api/route.ts (incompatible with output: export)
+- Fixed hydration mismatch: replaced useState isMobile with useSyncExternalStore
+- Verified build succeeds: static export generates 3 pages
+- ESLint: 0 errors
+- Pushed to GitHub
+
+## Current Project Status / Assessment
+
+Two critical bugs fixed this round:
+
+### Bug 1 — GitHub Pages Build Error (CRITICAL)
+- **Cause**: `src/app/api/route.ts` existed but `output: "export"` in next.config.ts doesn't support API routes
+- **Fix**: Deleted `/api/route.ts` and `/api/` directory
+- **Result**: Build now succeeds — `next build` generates static pages (/, /_not-found)
+
+### Bug 2 — React Hydration Mismatch (CRITICAL)
+- **Cause**: `isMobile` useState initializer used `typeof window !== 'undefined'` which returned `true` on mobile clients during first render, but `false` on server. This caused React to see `<aside>` (server) vs `<div>` (mobile client) at the same position.
+- **Fix**: Replaced `useState(() => typeof window !== 'undefined' ? matchMedia(...) : false)` + useEffect with `useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)` where `getServerSnapshot = () => false`
+- **Result**: Server and client always agree on first render (desktop layout). On mobile, after mount, useSyncExternalStore triggers re-render to show mobile layout. No hydration warning.
+
+### Verification
+- `bun run lint`: 0 errors
+- `npx next build`: ✅ Compiled successfully, 3 static pages generated
+- Dev server: 200 OK
+- Pushed to GitHub: main branch
+
+## Unresolved Issues / Risks
+1. GitHub Pages deployment not yet triggered via GitHub Actions (needs workflow file)
+2. basePath may need configuration for repo-specific URL (/L-alchimie-du-miroir-therapie/)
+3. MunajatTextarea not applied to all protocols (only ProtocolA/E confirmed)
+4. Part III Annexes not yet built
+5. VLM only analyzed cover/early sections — deeper protocol content not visually verified
+
+## Priority Recommendations for Next Phase
+1. Add GitHub Actions workflow for auto-deploy to GitHub Pages on push
+2. Set basePath in next.config.ts for repo-specific URL
+3. Deep QA of all 12 protocol sections (content, layout, interactivity)
+4. Apply MunajatTextarea to remaining protocols B-H Phase 3
+5. Build Part III: Annexes section
+6. Add dark/light theme toggle
