@@ -9,13 +9,20 @@ interface BookTableProps {
 
 export default function BookTable({ headers, rows }: BookTableProps) {
   return (
-    <div className="book-table-container" style={{
+    <div className="book-table-container book-table-glow-top" style={{
       position: 'relative',
-      borderRadius: '10px',
-      border: '1px solid rgba(201, 162, 39, 0.15)',
-      margin: '1rem 0',
+      borderRadius: '12px',
+      border: '1px solid rgba(201, 162, 39, 0.18)',
+      margin: '1.25rem 0',
       maxWidth: '100%',
+      overflow: 'hidden',
     }}>
+      {/* Top accent line */}
+      <div style={{
+        height: '2px',
+        background: 'linear-gradient(to right, transparent 5%, rgba(201, 162, 39, 0.4) 30%, #D4AF37 50%, rgba(201, 162, 39, 0.4) 70%, transparent 95%)',
+      }} />
+
       <div className="book-table-scroll" style={{
         overflowX: 'auto',
         WebkitOverflowScrolling: 'touch',
@@ -27,18 +34,17 @@ export default function BookTable({ headers, rows }: BookTableProps) {
         }}>
           <thead>
             <tr style={{
-              background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.25) 0%, rgba(139, 105, 20, 0.15) 50%, rgba(201, 162, 39, 0.08) 100%)',
+              background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.2) 0%, rgba(139, 105, 20, 0.12) 50%, rgba(201, 162, 39, 0.06) 100%)',
             }}>
               {headers.map((header, i) => (
-                <th key={i} style={{
-                  padding: '0.75rem 1rem',
+                <th key={i} className="book-table-header-text" style={{
+                  padding: '0.85rem 1rem',
                   textAlign: 'left',
-                  color: '#D4AF37',
                   fontWeight: 700,
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  borderBottom: '1px solid rgba(201, 162, 39, 0.3)',
+                  letterSpacing: '0.08em',
+                  borderBottom: '1px solid rgba(201, 162, 39, 0.25)',
                   whiteSpace: 'nowrap',
                 }}>
                   {header}
@@ -48,18 +54,23 @@ export default function BookTable({ headers, rows }: BookTableProps) {
           </thead>
           <tbody>
             {rows.map((row, ri) => (
-              <tr key={ri} className="book-table-row" style={{
-                background: ri % 2 === 0 ? 'rgba(22, 27, 34, 0.6)' : 'rgba(33, 45, 58, 0.4)',
-                borderLeft: '3px solid transparent',
-                transition: 'border-left-color 0.2s ease, background-color 0.2s ease',
-              }}>
+              <tr
+                key={ri}
+                className="book-table-row book-table-row-animated row-hover-glow"
+                style={{
+                  background: ri % 2 === 0 ? 'rgba(22, 27, 34, 0.7)' : 'rgba(33, 45, 58, 0.45)',
+                  borderLeft: '3px solid transparent',
+                  animationDelay: `${ri * 0.06}s`,
+                }}
+              >
                 {row.map((cell, ci) => (
                   <td key={ci} style={{
-                    padding: '0.7rem 1rem',
-                    borderBottom: '1px solid rgba(155, 149, 144, 0.12)',
+                    padding: '0.75rem 1rem',
+                    borderBottom: ri === rows.length - 1 ? 'none' : '1px solid rgba(155, 149, 144, 0.1)',
                     color: '#E8E4DC',
-                    lineHeight: 1.6,
+                    lineHeight: 1.65,
                     verticalAlign: 'top',
+                    fontSize: ci === 0 ? '0.88rem' : '0.88rem',
                   }}>
                     {cell}
                   </td>
@@ -70,11 +81,20 @@ export default function BookTable({ headers, rows }: BookTableProps) {
         </table>
       </div>
 
-      {/* Right edge fade-out shadow for mobile scroll */}
+      {/* Bottom accent line */}
+      <div style={{
+        height: '1px',
+        background: 'linear-gradient(to right, transparent 5%, rgba(201, 162, 39, 0.2) 30%, rgba(201, 162, 39, 0.3) 50%, rgba(201, 162, 39, 0.2) 70%, transparent 95%)',
+      }} />
+
       <style jsx>{`
-        .book-table-row:hover {
-          border-left-color: #C9A227 !important;
-          background-color: rgba(201, 162, 39, 0.05) !important;
+        .book-table-row-animated {
+          opacity: 0;
+        }
+
+        .row-hover-glow:hover {
+          background-color: rgba(201, 162, 39, 0.04) !important;
+          box-shadow: inset 3px 0 0 #C9A227, 0 0 15px rgba(201, 162, 39, 0.03);
         }
 
         .book-table-scroll {

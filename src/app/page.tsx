@@ -98,6 +98,23 @@ function FadeInSection({ children }: { children: React.ReactNode }) {
 }
 
 /* ────────────────────────────────────────────────
+   localStorage helpers
+   ──────────────────────────────────────────────── */
+function getStoredArray(key: string): string[] {
+  if (typeof window === 'undefined') return [];
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+  catch { return []; }
+}
+function getStoredNumber(key: string, fallback: number): number {
+  if (typeof window === 'undefined') return fallback;
+  const v = localStorage.getItem(key);
+  return v ? Number(v) : fallback;
+}
+
+const FONT_SIZES = { small: 15, normal: 17, large: 19 } as const;
+type FontSizeKey = keyof typeof FONT_SIZES;
+
+/* ────────────────────────────────────────────────
    Main page component
    ──────────────────────────────────────────────── */
 export default function Home() {
@@ -107,6 +124,12 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState('sommaire');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  /* ── visited sections (reading progress) ── */
+  const [visitedSections, setVisitedSections] = useState<string[]>(() => getStoredArray('alchimie-visited-sections'));
+
+  /* ── font size preference ── */
+  const [fontSize, setFontSize] = useState<number>(() => getStoredNumber('alchimie-font-size', FONT_SIZES.normal));
   // Use useSyncExternalStore to avoid hydration mismatch + setState-in-effect lint error.
   // On server/SSR, getSnapshot returns false (no mobile sidebar → matches server HTML).
   // On client, getSnapshot subscribes to matchMedia and returns the live value.
@@ -139,6 +162,39 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  /* ── track visited sections via IntersectionObserver ── */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            if (id && !visitedSections.includes(id)) {
+              const next = [...visitedSections, id];
+              setVisitedSections(next);
+              try { localStorage.setItem('alchimie-visited-sections', JSON.stringify(next)); } catch {/* */}
+            }
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    ALL_NAV_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [visitedSections]);
+
+  /* ── font size change handler ── */
+  const handleFontSizeChange = useCallback((key: FontSizeKey) => {
+    const size = FONT_SIZES[key];
+    setFontSize(size);
+    try { localStorage.setItem('alchimie-font-size', String(size)); } catch {/* */}
+  }, []);
+
+  const activeFontKey: FontSizeKey = fontSize <= 15 ? 'small' : fontSize >= 19 ? 'large' : 'normal';
+
   /* ── navigation ── */
   const scrollToSection = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -166,6 +222,7 @@ export default function Home() {
   /* ── sidebar nav item renderer ── */
   const renderNavItem = (item: NavItem) => {
     const isActive = activeSection === item.id;
+    const isVisited = visitedSections.includes(item.id);
     return (
       <button
         key={item.id}
@@ -228,7 +285,8 @@ export default function Home() {
         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.label}
         </span>
-        {isActive && (
+        {/* Visited checkmark or active dot */}
+        {isActive ? (
           <span style={{
             marginLeft: 'auto',
             width: '6px',
@@ -238,10 +296,192 @@ export default function Home() {
             flexShrink: 0,
             boxShadow: '0 0 6px rgba(212, 175, 55, 0.4)',
           }} />
-        )}
+        ) : isVisited ? (
+          <svg
+            style={{
+              marginLeft: 'auto',
+              width: '14px',
+              height: '14px',
+              flexShrink: 0,
+              opacity: 0.7,
+            }}
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="8" cy="8" r="7" stroke="#4CAF50" strokeWidth="1.5" fill="rgba(76,175,80,0.15)" />
+            <path d="M5 8.5L7 10.5L11 6" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : null}
       </button>
     );
   };
+
+  /* ── sidebar footer controls (progress + font size) ── */
+  const totalSections = ALL_NAV_IDS.length;
+  const visitedCount = visitedSections.length;
+  const progressPct = totalSections > 0 ? Math.round((visitedCount / totalSections) * 100) : 0;
+
+  const renderSidebarFooter = (onActionClick?: () => void) => (
+    <div style={{
+      padding: '0.5rem 0.75rem 0.65rem',
+      borderTop: '1px solid rgba(201, 162, 39, 0.08)',
+      flexShrink: 0,
+    }}>
+      {/* Progress indicator */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        marginBottom: '0.5rem',
+        padding: '0.35rem 0.5rem',
+        borderRadius: '6px',
+        background: 'rgba(201, 162, 39, 0.04)',
+      }}>
+        {/* Mini progress bar */}
+        <div style={{
+          flex: 1,
+          height: '4px',
+          borderRadius: '2px',
+          background: 'rgba(201, 162, 39, 0.1)',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            height: '100%',
+            width: `${progressPct}%`,
+            background: 'linear-gradient(90deg, #4CAF50, #66BB6A)',
+            borderRadius: '2px',
+            transition: 'width 0.4s ease',
+          }} />
+        </div>
+        <span style={{
+          fontSize: '0.65rem',
+          color: '#9B9590',
+          whiteSpace: 'nowrap',
+          fontFamily: '"Inter", sans-serif',
+        }}>
+          {visitedCount}/{totalSections}
+        </span>
+      </div>
+
+      {/* Font size + action buttons */}
+      <div style={{ display: 'flex', gap: '0.35rem' }}>
+        {/* Font size buttons */}
+        <div style={{
+          display: 'flex',
+          gap: '0',
+          borderRadius: '8px',
+          border: '1px solid rgba(201, 162, 39, 0.12)',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}>
+          {([
+            { key: 'small' as FontSizeKey, label: 'A−', title: 'Petit' },
+            { key: 'normal' as FontSizeKey, label: 'A', title: 'Normal' },
+            { key: 'large' as FontSizeKey, label: 'A+', title: 'Grand' },
+          ] as const).map(({ key, label, title }) => (
+            <button
+              key={key}
+              onClick={() => handleFontSizeChange(key)}
+              title={title}
+              aria-label={title}
+              style={{
+                background: activeFontKey === key
+                  ? 'rgba(201, 162, 39, 0.15)'
+                  : 'transparent',
+                color: activeFontKey === key ? '#D4AF37' : '#9B9590',
+                border: 'none',
+                borderRight: key !== 'large' ? '1px solid rgba(201, 162, 39, 0.08)' : 'none',
+                padding: '0.35rem 0.45rem',
+                cursor: 'pointer',
+                fontSize: key === 'small' ? '0.65rem' : key === 'large' ? '0.8rem' : '0.72rem',
+                fontWeight: activeFontKey === key ? 700 : 400,
+                fontFamily: '"Inter", sans-serif',
+                lineHeight: 1,
+                transition: 'all 0.15s ease',
+                minHeight: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={(e) => {
+                if (activeFontKey !== key) {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.06)';
+                  (e.currentTarget as HTMLElement).style.color = '#C9A227';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeFontKey !== key) {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLElement).style.color = '#9B9590';
+                }
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search + Journal buttons */}
+        <button
+          onClick={() => { setIsSearchOpen(true); onActionClick?.(); }}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.3rem',
+            padding: '0.35rem 0.3rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(201, 162, 39, 0.15)',
+            background: 'rgba(201, 162, 39, 0.04)',
+            color: '#C9A227',
+            fontSize: '0.7rem',
+            cursor: 'pointer',
+            fontFamily: '"Inter", sans-serif',
+            transition: 'all 0.2s ease',
+            minHeight: '30px',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
+          }}
+        >
+          🔍
+        </button>
+        <button
+          onClick={() => { setIsJournalOpen(true); onActionClick?.(); }}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.3rem',
+            padding: '0.35rem 0.3rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(201, 162, 39, 0.15)',
+            background: 'rgba(201, 162, 39, 0.04)',
+            color: '#C9A227',
+            fontSize: '0.7rem',
+            cursor: 'pointer',
+            fontFamily: '"Inter", sans-serif',
+            transition: 'all 0.2s ease',
+            minHeight: '30px',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
+          }}
+        >
+          📜
+        </button>
+      </div>
+    </div>
+  );
 
   /* ═══════════════════════════════════════════════
      RENDER
@@ -377,71 +617,8 @@ export default function Home() {
               ))}
             </nav>
 
-            {/* Sidebar footer — action buttons */}
-            <div style={{
-              padding: '0.75rem',
-              borderTop: '1px solid rgba(201, 162, 39, 0.08)',
-              flexShrink: 0,
-              display: 'flex',
-              gap: '0.5rem',
-            }}>
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  padding: '0.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(201, 162, 39, 0.15)',
-                  background: 'rgba(201, 162, 39, 0.04)',
-                  color: '#C9A227',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  fontFamily: '"Inter", sans-serif',
-                  transition: 'all 0.2s ease',
-                  minHeight: '38px',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
-                }}
-              >
-                🔍 <span>Rechercher</span>
-              </button>
-              <button
-                onClick={() => setIsJournalOpen(true)}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  padding: '0.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(201, 162, 39, 0.15)',
-                  background: 'rgba(201, 162, 39, 0.04)',
-                  color: '#C9A227',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  fontFamily: '"Inter", sans-serif',
-                  transition: 'all 0.2s ease',
-                  minHeight: '38px',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
-                }}
-              >
-                📜 <span>Journal</span>
-              </button>
-            </div>
+            {/* Sidebar footer — progress, font size, action buttons */}
+            {renderSidebarFooter()}
           </aside>
         )}
 
@@ -557,57 +734,8 @@ export default function Home() {
               ))}
             </nav>
 
-            {/* Mobile sidebar footer */}
-            <div style={{
-              padding: '0.75rem',
-              borderTop: '1px solid rgba(201, 162, 39, 0.1)',
-              flexShrink: 0,
-              display: 'flex',
-              gap: '0.5rem',
-            }}>
-              <button
-                onClick={() => { setIsSearchOpen(true); setIsSidebarOpen(false); }}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  padding: '0.55rem',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(201, 162, 39, 0.2)',
-                  background: 'rgba(201, 162, 39, 0.06)',
-                  color: '#D4AF37',
-                  fontSize: '0.78rem',
-                  cursor: 'pointer',
-                  fontFamily: '"Inter", sans-serif',
-                  minHeight: '44px',
-                }}
-              >
-                🔍 Rechercher
-              </button>
-              <button
-                onClick={() => { setIsJournalOpen(true); setIsSidebarOpen(false); }}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  padding: '0.55rem',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(201, 162, 39, 0.2)',
-                  background: 'rgba(201, 162, 39, 0.06)',
-                  color: '#D4AF37',
-                  fontSize: '0.78rem',
-                  cursor: 'pointer',
-                  fontFamily: '"Inter", sans-serif',
-                  minHeight: '44px',
-                }}
-              >
-                📜 Journal
-              </button>
-            </div>
+            {/* Mobile sidebar footer — progress, font size, action buttons */}
+            {renderSidebarFooter(() => setIsSidebarOpen(false))}
           </aside>
         )}
 
@@ -711,6 +839,8 @@ export default function Home() {
           flex: 1,
           minWidth: 0,
           paddingTop: isMobile ? '56px' : 0,
+          fontSize: `${fontSize}px`,
+          transition: 'font-size 0.2s ease',
         }}>
           <div style={{
             maxWidth: isMobile ? '100%' : '860px',

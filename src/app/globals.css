@@ -522,6 +522,210 @@ button, a, [role="button"] {
 
 .particle { pointer-events: none; }
 
+/* ========== Protocol Header: Number badge ring glow ========== */
+@keyframes badge-ring-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(201, 162, 39, 0.2), 0 0 20px rgba(201, 162, 39, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(201, 162, 39, 0.4), 0 0 40px rgba(201, 162, 39, 0.1);
+  }
+}
+
+.protocol-badge-ring {
+  animation: badge-ring-glow 3s ease-in-out infinite;
+}
+
+/* ========== Protocol Header: Title subtle glow ========== */
+@keyframes title-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.25), 0 0 40px rgba(201, 162, 39, 0.08);
+  }
+}
+
+.protocol-title-glow {
+  animation: title-text-glow 4s ease-in-out infinite;
+}
+
+/* ========== Protocol Header: Fade in down ========== */
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.protocol-header-enter {
+  animation: fade-in-down 0.5s ease-out forwards;
+}
+
+/* ========== Book Table: Row entrance stagger ========== */
+@keyframes table-row-enter {
+  0% {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.book-table-row-animated {
+  animation: table-row-enter 0.35s ease-out forwards;
+  opacity: 0;
+}
+
+/* ========== Book Table: Header text shimmer ========== */
+@keyframes header-shimmer {
+  0% {
+    background-position: -100% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.book-table-header-text {
+  background: linear-gradient(
+    90deg,
+    #D4AF37 0%,
+    #F5F0E1 25%,
+    #D4AF37 50%,
+    #C9A227 75%,
+    #D4AF37 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: header-shimmer 8s ease-in-out infinite;
+}
+
+/* ========== Quote Block: Float animation ========== */
+@keyframes quote-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.quote-float {
+  animation: quote-float 5s ease-in-out infinite;
+}
+
+/* ========== Quote Block: Accent line glow pulse ========== */
+@keyframes accent-line-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(212, 175, 55, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5), 0 0 24px rgba(201, 162, 39, 0.15);
+  }
+}
+
+.quote-accent-glow {
+  animation: accent-line-glow 3s ease-in-out infinite;
+}
+
+/* ========== Exercise Box: Entrance slide ========== */
+@keyframes exercise-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.exercise-box-enter {
+  animation: exercise-enter 0.45s ease-out forwards;
+}
+
+/* ========== Exercise Box: Label pulse glow ========== */
+@keyframes label-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(46, 139, 87, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(46, 139, 87, 0.25);
+  }
+}
+
+.exercise-label-glow {
+  animation: label-pulse 3s ease-in-out infinite;
+}
+
+/* ========== Exercise Box: Hover lift ========== */
+.exercise-box-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.exercise-box-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(46, 139, 87, 0.1);
+}
+
+/* ========== Decorative diamond ornament ========== */
+.diamond-ornament {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #C9A227;
+  transform: rotate(45deg);
+  opacity: 0.6;
+}
+
+/* ========== Protocol Header: Bottom ornament wave ========== */
+@keyframes ornament-wave {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleX(1.05);
+  }
+}
+
+.protocol-bottom-ornament {
+  animation: ornament-wave 4s ease-in-out infinite;
+}
+
+/* ========== Quote: Citation em-dash styling ========== */
+.citation-emdash {
+  display: inline-block;
+  color: #C9A227;
+  font-family: 'Amiri', serif;
+  font-size: 1.1rem;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+
+/* ========== Table: Top container shadow ========== */
+.book-table-glow-top {
+  box-shadow: 0 -1px 0 0 rgba(201, 162, 39, 0.1), 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== Subtle hover glow for interactive rows ========== */
+.row-hover-glow {
+  transition: all 0.25s ease;
+}
+.row-hover-glow:hover {
+  background-color: rgba(201, 162, 39, 0.04) !important;
+  box-shadow: inset 3px 0 0 #C9A227, 0 0 15px rgba(201, 162, 39, 0.03);
+}
+
 /* Print styles */
 @media print {
   body {

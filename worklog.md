@@ -578,3 +578,52 @@ Two critical bugs fixed this round:
 4. Apply MunajatTextarea to remaining protocols B-H Phase 3
 5. Build Part III: Annexes section
 6. Add dark/light theme toggle
+
+---
+Task ID: 19
+Agent: frontend-styling-expert
+Task: Styling improvements across book components
+
+Work Log:
+- Read worklog.md and all 5 target files to understand project state and current styling
+- Added 14 new CSS keyframe animations and utility classes to globals.css
+- Enhanced ProtocolHeader.tsx with vignette overlay, animated badge ring, title glow, decorative bottom ornament with diamond
+- Enhanced BookTable.tsx with top/bottom accent lines, row entrance stagger animation, header text shimmer, improved hover glow, last-row border removal
+- Enhanced QuoteBlock.tsx with gentle float animation, accent line glow pulse, larger quote marks, Cormorant Garamond typography, top-left inner glow, citation separator border, em-dash styling
+- Enhanced ExerciseBox.tsx with entrance slide animation, hover lift effect, top accent line, label pulse glow, inner radial glow, improved font assignment
+- Ran bun run lint: 0 errors
+
+Stage Summary:
+- 5 files modified (globals.css, ProtocolHeader, BookTable, QuoteBlock, ExerciseBox)
+- 14 new CSS animations added: badge-ring-glow, title-text-glow, fade-in-down, table-row-enter, header-shimmer, quote-float, accent-line-glow, exercise-enter, label-pulse, exercise-box-lift, ornament-wave, plus utility classes
+- All animations are CSS-only for performance (no JS animation libraries)
+- No component logic/API changed — styling-only improvements
+- Mobile-first responsive design maintained
+- Dark theme consistency preserved (#0D1117 bg, #E8E4DC text, gold accents)
+
+---
+Task ID: 20
+Agent: features-developer
+Task: Add reading progress tracker and font size adjuster
+
+Work Log:
+- Read worklog.md and page.tsx to understand project state and sidebar structure
+- Added localStorage helper functions (getStoredArray, getStoredNumber) for SSR-safe persistence
+- Added visitedSections state with localStorage key "alchimie-visited-sections" (JSON array of section IDs)
+- Added fontSize state with localStorage key "alchimie-font-size" (default 17px)
+- Implemented IntersectionObserver (threshold 0.15) to track section visits — when a section enters viewport, its ID is appended to the visited array
+- Modified renderNavItem to show green checkmark SVG (circle + checkmark path, #4CAF50) for visited-but-not-active sections; active section still shows gold dot
+- Created shared renderSidebarFooter() function used by both desktop and mobile sidebars
+- Sidebar footer now contains: progress bar (green gradient, shows visitedCount/totalSections), font size buttons (A−/A/A+ with active state), search button, journal button
+- Font size adjuster: three buttons in a grouped pill, active button has gold highlight, sizes 15px/17px/19px
+- Applied fontSize via inline style on <main> element with CSS transition for smooth changes
+- Desktop sidebar and mobile drawer both use the same renderSidebarFooter function (mobile version passes onActionClick to close sidebar on action)
+- Replaced old sidebar footer buttons (search + journal with text labels) with the new compact footer layout
+- Ran ESLint: 0 errors
+
+Stage Summary:
+- Feature 1 (Reading Progress Tracker): Tracks visited sections via IntersectionObserver, persists to localStorage "alchimie-visited-sections", shows green checkmark on visited nav items, displays mini progress bar with count in sidebar footer
+- Feature 2 (Font Size Adjuster): Three-button control (A−/A/A+) in sidebar footer, persists to localStorage "alchimie-font-size", applies font-size to main content area only, active button visually highlighted
+- Both features fully integrated into desktop sidebar and mobile drawer sidebar
+- Single file modified: src/app/page.tsx
+- ESLint: 0 errors
