@@ -7,12 +7,14 @@ import QuoteBlock from './QuoteBlock';
 interface TOCItemProps {
   children: React.ReactNode;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
 
-function TOCItem({ children, style }: TOCItemProps) {
+function TOCItem({ children, style, onClick }: TOCItemProps) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
+      onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -20,40 +22,32 @@ function TOCItem({ children, style }: TOCItemProps) {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'baseline',
-        padding: '0.35rem 0 0.35rem 0.5rem',
-        borderRadius: '4px',
-        background: hovered ? 'linear-gradient(90deg, rgba(201, 162, 39, 0.06) 0%, transparent 60%)' : 'transparent',
+        padding: '0.4rem 0.5rem',
+        borderRadius: '6px',
+        background: hovered ? 'rgba(201, 162, 39, 0.06)' : 'transparent',
         borderLeft: hovered ? '2px solid rgba(201, 162, 39, 0.5)' : '2px solid transparent',
-        cursor: 'pointer',
-        transition: 'background 0.3s ease, border-color 0.3s ease',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'background 0.2s ease, border-color 0.2s ease',
         ...style,
       }}
     >
       {children}
-      {/* Animated gold underline on hover */}
-      {hovered && (
-        <div style={{
-          position: 'absolute',
-          bottom: '0.35rem',
-          left: '0.5rem',
-          right: '0',
-          height: '1px',
-          background: 'linear-gradient(to right, rgba(201, 162, 39, 0.4), transparent)',
-          animation: 'underline-slide 0.3s ease-out forwards',
-        }} />
-      )}
     </div>
   );
 }
 
 export default function Sommaire() {
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div style={{
-      padding: '2rem 1.5rem',
+      padding: '2.5rem 1.5rem',
       minHeight: '100vh',
     }}>
       {/* Title */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -75,8 +69,16 @@ export default function Sommaire() {
           width: '80px',
           height: '2px',
           background: 'linear-gradient(to right, transparent, #C9A227, transparent)',
-          margin: '0 auto',
+          margin: '0.75rem auto',
         }} />
+        <p style={{
+          fontSize: '0.85rem',
+          color: '#9B9590',
+          fontStyle: 'italic',
+          margin: 0,
+        }}>
+          Manuel complet de méditation thérapeutique — 12 protocoles spécialisés
+        </p>
       </div>
 
       {/* Table of Contents */}
@@ -84,12 +86,12 @@ export default function Sommaire() {
         borderRadius: '12px',
         border: '1px solid rgba(201, 162, 39, 0.15)',
         overflow: 'hidden',
-        margin: '1.5rem 0',
+        margin: '0 0 2rem 0',
       }}>
-        {/* PARTIE I */}
+        {/* PARTIE I : Fondements */}
         <div style={{
-          padding: '1rem 1.25rem',
-          background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.12) 0%, rgba(201, 162, 39, 0.04) 100%)',
+          padding: '1.25rem',
+          background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.1) 0%, rgba(201, 162, 39, 0.03) 100%)',
           borderBottom: '1px solid rgba(201, 162, 39, 0.1)',
         }}>
           <h3 style={{
@@ -103,54 +105,43 @@ export default function Sommaire() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
             {[
-              { ch: 'Chapitre 1', title: 'Introduction à la Méditation Thérapeutique Islamique', page: '1' },
-              { ch: 'Chapitre 2', title: 'Le Cadre Théorique : Tadabbur & Neurosciences', page: '5' },
-              { ch: 'Chapitre 3', title: 'Les Quatre Phases du Protocole Clinique', page: '10' },
-              { ch: 'Chapitre 4', title: 'Guide du Praticien : Éthique & Bonnes Pratiques', page: '15' },
+              { ch: 'Chapitre 1', title: 'Introduction à la Méditation Thérapeutique Islamique', desc: 'Tadaburr, Dhikr, Muraqaba, Munajat' },
+              { ch: 'Chapitre 2', title: 'Cadre Théorique : Tadabbur & Neurosciences', desc: '5 piliers hybrides, preuves scientifiques' },
+              { ch: 'Chapitre 3', title: 'Les Quatre Phases du Protocole Clinique', desc: 'Fana, Tajalli, Munajat, Béance' },
+              { ch: 'Chapitre 4', title: 'Guide du Praticien : Éthique & Bonnes Pratiques', desc: 'Évaluation, contre-indications, déontologie' },
             ].map((item, i) => (
-              <TOCItem key={i} style={{
-                borderBottom: i < 3 ? '1px solid rgba(155, 149, 144, 0.08)' : 'none',
-              }}>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
-                  <span style={{
+              <TOCItem key={i} onClick={() => scrollTo('fondations')}>
+                <div>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      color: '#C9A227',
+                      minWidth: '85px',
+                    }}>
+                      {item.ch}
+                    </span>
+                    <span style={{ fontSize: '0.88rem', color: '#E8E4DC' }}>
+                      {item.title}
+                    </span>
+                  </div>
+                  <p style={{
                     fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#C9A227',
-                    minWidth: '85px',
+                    color: '#9B9590',
+                    margin: '0.15rem 0 0 5.6rem',
+                    fontStyle: 'italic',
                   }}>
-                    {item.ch}
-                  </span>
-                  <span style={{
-                    fontSize: '0.88rem',
-                    color: '#E8E4DC',
-                  }}>
-                    {item.title}
-                  </span>
+                    {item.desc}
+                  </p>
                 </div>
-                <span style={{
-                  fontSize: '0.8rem',
-                  color: '#9B9590',
-                  marginLeft: '1rem',
-                  flexShrink: 0,
-                }}>
-                  p. {item.page}
-                </span>
               </TOCItem>
             ))}
           </div>
-          <p style={{
-            fontSize: '0.75rem',
-            color: '#9B9590',
-            marginTop: '0.5rem',
-            fontStyle: 'italic',
-          }}>
-            Pages 1–20
-          </p>
         </div>
 
-        {/* PARTIE II */}
+        {/* PARTIE II : Protocoles — Groupe 1 */}
         <div style={{
-          padding: '1rem 1.25rem',
+          padding: '1.25rem',
           borderBottom: '1px solid rgba(201, 162, 39, 0.1)',
         }}>
           <h3 style={{
@@ -164,150 +155,105 @@ export default function Sommaire() {
           </h3>
 
           {/* Groupe 1 */}
-          <div style={{ marginBottom: '1rem' }}>
-            <p style={{
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              color: '#C9A227',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              margin: '0 0 0.5rem 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-            }}>
-              <span style={{ fontSize: '0.7rem' }}>◇</span>
-              Groupe 1 : Trauma &amp; Émotions Fondamentales
-              <span style={{ fontSize: '0.7rem' }}>◇</span>
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-              {[
-                { code: 'A', title: 'Trauma / PTSD — Le Refuge Sécurisant', page: '21' },
-                { code: 'B', title: 'Anxiété / Panique — La Présence Divine', page: '35' },
-                { code: 'C', title: 'Dépression & Sécheresse Spirituelle — L\'Aube Après la Nuit', page: '51' },
-                { code: 'D', title: 'Colère & Relationnel — Le Miroir Relationnel', page: '71' },
-                { code: 'E', title: 'Deuil & Perte — La Mer de l\'Âme', page: '87' },
-                { code: 'F', title: 'Peur Existentielle & Mort — Le Voile levé', page: '95' },
-              ].map((item, i) => (
-                <TOCItem key={i}>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '22px',
-                      height: '22px',
-                      borderRadius: '50%',
-                      background: 'rgba(201, 162, 39, 0.15)',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      color: '#D4AF37',
-                      flexShrink: 0,
-                    }}>
-                      {item.code}
-                    </span>
-                    <span style={{
-                      fontSize: '0.85rem',
-                      color: '#E8E4DC',
-                    }}>
-                      {item.title}
-                    </span>
-                  </div>
+          <p style={{
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: '#C9A227',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            margin: '0 0 0.6rem 0',
+          }}>
+            ◇ Trauma & Émotions Fondamentales
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', marginBottom: '1.25rem' }}>
+            {[
+              { code: 'A', title: 'Trauma / PTSD', desc: 'Le Refuge Sécurisant', id: 'protocole-a' },
+              { code: 'B', title: 'Anxiété / Panique', desc: 'La Présence Apaisante', id: 'protocole-b' },
+              { code: 'C', title: 'Dépression', desc: "L'Aube Après la Nuit", id: 'protocole-c' },
+              { code: 'D', title: 'Colère', desc: 'Le Miroir Relationnel', id: 'protocole-d' },
+              { code: 'E', title: 'Estime de Soi & Honte', desc: 'Le Miroir Intérieur', id: 'protocole-e' },
+              { code: 'F', title: 'Deuil & Perte', desc: 'La Mer de l\'Âme', id: 'protocole-f' },
+            ].map((item, i) => (
+              <TOCItem key={i} onClick={() => scrollTo(item.id)}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
                   <span style={{
-                    fontSize: '0.78rem',
-                    color: '#9B9590',
-                    marginLeft: '1rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(201, 162, 39, 0.15)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: '#D4AF37',
                     flexShrink: 0,
                   }}>
-                    p. {item.page}
+                    {item.code}
                   </span>
-                </TOCItem>
-              ))}
-            </div>
-            <p style={{
-              fontSize: '0.72rem',
-              color: '#9B9590',
-              marginTop: '0.4rem',
-              fontStyle: 'italic',
-            }}>
-              Pages 21–102
-            </p>
+                  <span style={{ fontSize: '0.88rem', color: '#E8E4DC', fontWeight: 500 }}>
+                    {item.title}
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: '#9B9590', fontStyle: 'italic' }}>
+                    — {item.desc}
+                  </span>
+                </div>
+              </TOCItem>
+            ))}
           </div>
 
           {/* Groupe 2 */}
-          <div style={{ marginBottom: '1rem' }}>
-            <p style={{
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              color: '#C9A227',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              margin: '0 0 0.5rem 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-            }}>
-              <span style={{ fontSize: '0.7rem' }}>◇</span>
-              Groupe 2 : Émotions Intermédiaires
-              <span style={{ fontSize: '0.7rem' }}>◇</span>
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-              {[
-                { code: 'G', title: 'Culpabilité & Honte — Le Poids du Passé', page: '103' },
-                { code: 'H', title: 'Jalousie & Envy — Le Regard Comparatif', page: '115' },
-                { code: 'I', title: 'Addictions — La Soif de l\'Âme', page: '125' },
-                { code: 'J', title: 'Stress & Burnout — L\'Équilibre Perdu', page: '135' },
-                { code: 'K', title: 'Estime de Soi — Le Miroir Intérieur', page: '145' },
-              ].map((item, i) => (
-                <TOCItem key={i}>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '22px',
-                      height: '22px',
-                      borderRadius: '50%',
-                      background: 'rgba(201, 162, 39, 0.15)',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      color: '#D4AF37',
-                      flexShrink: 0,
-                    }}>
-                      {item.code}
-                    </span>
-                    <span style={{
-                      fontSize: '0.85rem',
-                      color: '#E8E4DC',
-                    }}>
-                      {item.title}
-                    </span>
-                  </div>
+          <p style={{
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: '#C9A227',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            margin: '0 0 0.6rem 0',
+          }}>
+            ◇ Souffrance Relationnelle & Existentielle
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            {[
+              { code: 'G', title: 'Peur & Phobies', desc: 'Le Spectre de la Peur', id: 'protocole-g' },
+              { code: 'H', title: 'Solitude & Isolement', desc: 'Le Retour à Soi', id: 'protocole-h' },
+              { code: 'I', title: 'Addictions', desc: 'La Soif de l\'Âme', id: 'protocole-i' },
+              { code: 'J', title: 'Burnout', desc: 'Rallumer la Flamme', id: 'protocole-j' },
+              { code: 'K', title: 'Culpabilité Toxique', desc: 'Le Poids du Passé', id: 'protocole-k' },
+            ].map((item, i) => (
+              <TOCItem key={i} onClick={() => scrollTo(item.id)}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
                   <span style={{
-                    fontSize: '0.78rem',
-                    color: '#9B9590',
-                    marginLeft: '1rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(201, 162, 39, 0.15)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: '#D4AF37',
                     flexShrink: 0,
                   }}>
-                    p. {item.page}
+                    {item.code}
                   </span>
-                </TOCItem>
-              ))}
-            </div>
-            <p style={{
-              fontSize: '0.72rem',
-              color: '#9B9590',
-              marginTop: '0.4rem',
-              fontStyle: 'italic',
-            }}>
-              Pages 103–156
-            </p>
+                  <span style={{ fontSize: '0.88rem', color: '#E8E4DC', fontWeight: 500 }}>
+                    {item.title}
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: '#9B9590', fontStyle: 'italic' }}>
+                    — {item.desc}
+                  </span>
+                </div>
+              </TOCItem>
+            ))}
           </div>
         </div>
 
-        {/* PARTIE III */}
+        {/* PARTIE III : Annexes */}
         <div style={{
-          padding: '1rem 1.25rem',
+          padding: '1.25rem',
+          background: 'rgba(201, 162, 39, 0.03)',
         }}>
           <h3 style={{
             fontFamily: '"Amiri", serif',
@@ -320,37 +266,28 @@ export default function Sommaire() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
             {[
-              { title: 'Annexe A : Glossaire des Termes Techniques', page: '157' },
-              { title: 'Annexe B : Corpus Coranique Référencé', page: '160' },
-              { title: 'Annexe C : Bibliographie & Sources', page: '163' },
-              { title: 'Annexe D : Feuilles de Suivi Clinique', page: '165' },
+              { title: 'Glossaire des Termes Techniques (Arabe/Français)', desc: 'Tadabbur, Fitrah, Qabdh, Fana, Tajalli...' },
+              { title: 'Corpus Coranique Référencé', desc: 'Tous les versets utilisés avec traduction' },
+              { title: 'Bibliographie & Sources Scientifiques', desc: 'Neurosciences, psychologie, tradition soufie' },
+              { title: 'Feuilles de Suivi Clinique', desc: 'Grilles d\'évaluation imprimables' },
             ].map((item, i) => (
               <TOCItem key={i}>
-                <span style={{
-                  fontSize: '0.85rem',
-                  color: '#E8E4DC',
-                }}>
-                  {item.title}
-                </span>
-                <span style={{
-                  fontSize: '0.78rem',
-                  color: '#9B9590',
-                  marginLeft: '1rem',
-                  flexShrink: 0,
-                }}>
-                  p. {item.page}
-                </span>
+                <div>
+                  <span style={{ fontSize: '0.85rem', color: '#E8E4DC' }}>
+                    {item.title}
+                  </span>
+                  <p style={{
+                    fontSize: '0.73rem',
+                    color: '#9B9590',
+                    margin: '0.1rem 0 0 0',
+                    fontStyle: 'italic',
+                  }}>
+                    {item.desc}
+                  </p>
+                </div>
               </TOCItem>
             ))}
           </div>
-          <p style={{
-            fontSize: '0.72rem',
-            color: '#9B9590',
-            marginTop: '0.4rem',
-            fontStyle: 'italic',
-          }}>
-            Pages 157–170
-          </p>
         </div>
       </div>
 
@@ -363,16 +300,48 @@ export default function Sommaire() {
         lorsque le cœur est purifié de ses voiles.
       </QuoteBlock>
 
-      {/* Page notation */}
-      <p style={{
-        textAlign: 'center',
-        fontSize: '0.75rem',
-        color: '#9B9590',
-        marginTop: '1.5rem',
-        fontStyle: 'italic',
+      {/* Stats */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '1rem',
+        marginTop: '2rem',
+        marginBottom: '1.5rem',
       }}>
-        ≈ 170 pages
-      </p>
+        {[
+          { num: '12', label: 'Protocoles' },
+          { num: '48', label: 'Timers' },
+          { num: '4', label: 'Phases' },
+          { num: '30+', label: 'Composants' },
+        ].map((stat, i) => (
+          <div key={i} style={{
+            textAlign: 'center',
+            padding: '1rem 0.5rem',
+            borderRadius: '10px',
+            border: '1px solid rgba(201, 162, 39, 0.12)',
+            background: 'rgba(201, 162, 39, 0.04)',
+          }}>
+            <div style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#D4AF37',
+              fontFamily: '"Cormorant Garamond", serif',
+              lineHeight: 1.2,
+            }}>
+              {stat.num}
+            </div>
+            <div style={{
+              fontSize: '0.7rem',
+              color: '#9B9590',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginTop: '0.25rem',
+            }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
