@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React from 'react';
 import ProtocolHeader from './ProtocolHeader';
 import ProtocolBody from './ProtocolBody';
 import QuoteBlock from './QuoteBlock';
@@ -8,23 +8,11 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export default function ProtocolH() {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [journalEntry, setJournalEntry] = useLocalStorage('alchimie-journal-protH', '');
-
-  const handlePromptSelect = useCallback((text: string) => {
-    setJournalEntry(prev => prev ? `${prev}\n${text}` : text);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [setJournalEntry]);
-
   return (
     <div>
       <ProtocolHeader
@@ -420,49 +408,18 @@ export default function ProtocolH() {
             reference="Al-Baqarah 2:186"
           />
 
-          <PromptChips prompts={[
-            { emoji: '🕌', text: 'Mon Dieu, je me sens seul(e) mais Tu dis que Tu es proche — montre-moi cette Proximité' },
-            { emoji: '🤲', text: 'Seigneur, si Tu es avec moi, alors je ne suis jamais seul(e) — ouvre les yeux de mon cœur' },
-            { emoji: '💫', text: 'Ô Toi qui comprends la solitude de David dans la grotte, comprends la mienne' },
-            { emoji: '🕊️', text: 'Apprends-moi à me sentir relié(e) aux invisibles — aux anges, aux croyants, à ceux qui prient comme moi' },
-            { emoji: '🪞', text: 'Mon âme a soif de connexion — donne-moi de trouver Ta compagnie dans ma solitude' },
-            { emoji: '🏠', text: 'Tu es le Refuge des cœurs sans abri — sois mon Domicile quand le monde m\'exclut' },
-          ]} onSelect={handlePromptSelect} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              ref={textareaRef}
-              value={journalEntry}
-              onChange={(e) => setJournalEntry(e.target.value)}
-              placeholder="Ici, votre solitude se transforme en conversation — parlez à Celui qui est toujours là..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole H : Solitude & Isolement"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protH-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Seigneur, tu es plus proche de moi que ma jugulaire...' },
+              { emoji: '🤲', text: 'Ma solitude me pousse à chercher...' },
+              { emoji: '💫', text: 'Je trouve ta présence dans...' },
+              { emoji: '🕊️', text: 'Je m\'ouvre à la connexion avec...' },
+              { emoji: '🏠', text: 'Même seul(e), je suis accompagné(e) par...' },
+            ]}
+          />
 
           <MeditationTimer id="protH-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>

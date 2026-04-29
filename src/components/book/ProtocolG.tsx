@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React from 'react';
 import ProtocolHeader from './ProtocolHeader';
 import ProtocolBody from './ProtocolBody';
 import QuoteBlock from './QuoteBlock';
@@ -8,23 +8,11 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export default function ProtocolG() {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [journalEntry, setJournalEntry] = useLocalStorage('alchimie-journal-protG', '');
-
-  const handlePromptSelect = useCallback((text: string) => {
-    setJournalEntry(prev => prev ? `${prev}\n${text}` : text);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [setJournalEntry]);
-
   return (
     <div>
       <ProtocolHeader
@@ -418,49 +406,18 @@ export default function ProtocolG() {
             reference="Ghafir 40:44"
           />
 
-          <PromptChips prompts={[
-            { emoji: '🏰', text: 'Mon Dieu, ma peur est immense mais Tu es plus grand encore — apprends-moi à Te faire confiance' },
-            { emoji: '🕊️', text: 'Seigneur, comme Moussa face à la mer, donne-moi le courage de marcher malgré l\'impossible' },
-            { emoji: '🛡️', text: 'Ô Protecteur, je me réfugie en Toi contre la terreur qui m\'envahit — sois mon bouclier' },
-            { emoji: '🪞', text: 'Montre-moi, dans cette peur, le visage de Ta Miséricorde que je ne sais pas encore voir' },
-            { emoji: '💪', text: 'Allah, transforme ma peur en tremplin vers une foi que je n\'aurais jamais atteinte sans elle' },
-            { emoji: '🌙', text: 'Que Ta lumièreguide mes pas dans l\'obscurité de mon angoisse — Tu es le Meilleur des Guides' },
-          ]} onSelect={handlePromptSelect} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              ref={textareaRef}
-              value={journalEntry}
-              onChange={(e) => setJournalEntry(e.target.value)}
-              placeholder="Parlez à Dieu de vos peurs — Il écoute, Il comprend, Il ne juge jamais..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole G : Peur & Phobies"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protG-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Seigneur, tu es mon protecteur...' },
+              { emoji: '🛡️', text: 'Ma peur me révèle mon besoin de...' },
+              { emoji: '🕊️', text: 'Je place ma confiance en toi car...' },
+              { emoji: '💪', text: 'Avec toi je peux affronter...' },
+              { emoji: '🌿', text: 'Je lâche prise sur le besoin de contrôler car...' },
+            ]}
+          />
 
           <MeditationTimer id="protG-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>

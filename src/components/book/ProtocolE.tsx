@@ -9,7 +9,7 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
 
@@ -370,45 +370,18 @@ export default function ProtocolE() {
             de la Création.
           </p>
 
-          <PromptChips prompts={[
-            { emoji: '✨', text: 'Mon Dieu, montre-moi ma beauté à travers Tes yeux' },
-            { emoji: '🕊️', text: 'Seigneur, aide-moi à me pardonner de ne pas m\'aimer assez' },
-            { emoji: '🪞', text: 'Créateur, Tu m\'as façonné de Ta propre main — qui suis-je pour me détester ?' },
-            { emoji: '💛', text: 'Apprends-moi à me traiter avec la même douceur que je traite ceux que j\'aime' },
-            { emoji: '🌟', text: 'Mon Dieu, je veux croire que je mérite le bien — ouvre mon cœur à cette vérité' },
-          ]} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Parlez à Dieu de qui vous êtes vraiment — pas de qui vous croyez être..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole E : Estime de Soi"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protE-munajat"
+            prompts={[
+              { emoji: '✨', text: 'Seigneur, tu m\'as créé avec dignité...' },
+              { emoji: '🪞', text: 'Ma valeur ne dépend pas de...' },
+              { emoji: '🕊️', text: 'Je me libère de la honte car...' },
+              { emoji: '💛', text: 'En toi je trouve ma véritable identité...' },
+              { emoji: '🌟', text: 'Je mérite l\'amour et le respect car...' },
+            ]}
+          />
 
           <MeditationTimer id="protE-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>

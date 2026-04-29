@@ -12,6 +12,8 @@ import ProtocolE from '@/components/book/ProtocolE';
 import ProtocolF from '@/components/book/ProtocolF';
 import ProtocolG from '@/components/book/ProtocolG';
 import ProtocolH from '@/components/book/ProtocolH';
+import ProtocolI from '@/components/book/ProtocolI';
+import ProtocolK from '@/components/book/ProtocolK';
 import SavedJournal from '@/components/book/SavedJournal';
 import SearchDialog from '@/components/book/SearchDialog';
 
@@ -28,6 +30,8 @@ const NAV_ITEMS = [
   { id: 'protocole-f', label: 'F · Deuil' },
   { id: 'protocole-g', label: 'G · Peur' },
   { id: 'protocole-h', label: 'H · Solitude' },
+  { id: 'protocole-i', label: 'I · Addictions' },
+  { id: 'protocole-k', label: 'K · Culpabilité' },
 ];
 
 // Custom hook: detect if element is in viewport (fires once)
@@ -609,6 +613,18 @@ export default function Home() {
           <FadeInSection>
             <div id="protocole-h">
               <ProtocolH />
+            </div>
+          </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-i">
+              <ProtocolI />
+            </div>
+          </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-k">
+              <ProtocolK />
             </div>
           </FadeInSection>
         </div>

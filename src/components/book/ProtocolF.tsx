@@ -9,7 +9,7 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
 
@@ -354,46 +354,18 @@ export default function ProtocolF() {
             fragile d&apos;une lumière au bout de la nuit.
           </p>
 
-          <PromptChips prompts={[
-            { emoji: '🌊', text: 'Mon Dieu, ce vide en moi est si grand — remplis-le de Ta Présence' },
-            { emoji: '🕊️', text: 'Seigneur, prends soin de celle/celui que j\'ai perdu(e) comme Tu m\'as pris soin' },
-            { emoji: '💔', text: 'Je suis en colère de l\'avoir perdu(e) et je T\'en veux — et je Te confie quand même cette colère' },
-            { emoji: '🪞', text: 'Montre-moi comment aimer quelqu\'un qui n\'est plus là sans perdre la joie de vivre' },
-            { emoji: '🌙', text: 'Que la lune de Ta Miséricorde éclaire mes nuits les plus sombres' },
-            { emoji: '✨', text: 'Transforme mes larmes en prière et ma douleur en sagesse, Ô Toi le Très Doux' },
-          ]} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Ici, tout est permis — la douleur, le manque, les souvenirs. Écrivez ce que le cœur porte..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole F : Deuil & Perte"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protF-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Seigneur, accueille ceux que j\'ai perdus dans ta miséricorde...' },
+              { emoji: '💧', text: 'Ma tristesse est le prix de mon amour pour...' },
+              { emoji: '🕊️', text: 'Je trouve du réconfort dans...' },
+              { emoji: '🌅', text: 'Même parti(e), cet être vit en moi à travers...' },
+              { emoji: '🌱', text: 'J\'ouvre mon cœur à l\'espérance de...' },
+            ]}
+          />
 
           <MeditationTimer id="protF-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>

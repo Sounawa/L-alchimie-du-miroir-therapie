@@ -9,7 +9,7 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
 
@@ -505,55 +505,18 @@ export default function ProtocolC() {
             </div>
           </div>
 
-          <p style={{
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            color: '#C9A227',
-            marginBottom: '0.5rem',
-          }}>
-            Prompts pour votre Munajat :
-          </p>
-
-          <PromptChips prompts={[
-            { emoji: '🌑', text: 'Mon Dieu, je suis dans la nuit et je ne vois pas la lune' },
-            { emoji: '💫', text: 'Seigneur, si Tu es là, montre-moi un signe, même infime' },
-            { emoji: '🌊', text: 'Mon âme est une mer agitée — apaise-la, même si je ne mérite pas' },
-            { emoji: '🌅', text: 'Je veux croire que l\'aube viendra, mais la foi est lourde' },
-            { emoji: '🤲', text: 'Prends ma main dans cette obscurité, même si je ne peux pas Te voir' },
-            { emoji: '📖', text: 'Comme Ayyub, je suis touché — mais où est la patience ?' },
-          ]} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Écrivez librement — même la colère est une forme de prière. Tout ce que votre cœur porte..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole C : Dépression & Sécheresse Spirituelle"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protC-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Seigneur, dans cette sécheresse je cherche...' },
+              { emoji: '💧', text: 'Mon âme a soif de...' },
+              { emoji: '🌑', text: 'Même dans l\'obscurité je crois que...' },
+              { emoji: '🌾', text: 'Je donne grâce pour...' },
+              { emoji: '🌱', text: 'Ce désert porte en lui les graines de...' },
+            ]}
+          />
 
           <MeditationTimer id="protC-phase3" initialSeconds={900} label="Phase 3 — Munajat Clinique" />
         </section>

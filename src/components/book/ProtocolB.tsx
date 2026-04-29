@@ -9,7 +9,7 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
 
@@ -493,54 +493,18 @@ export default function ProtocolB() {
             </div>
           </div>
 
-          <p style={{
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            color: '#C9A227',
-            marginBottom: '0.5rem',
-          }}>
-            Prompts pour votre Munajat :
-          </p>
-
-          <PromptChips prompts={[
-            { emoji: '🌊', text: 'Seigneur, apaise les vagues de mon cœur' },
-            { emoji: '🤲', text: 'Je dépose entre Tes Mains toutes mes inquiétudes' },
-            { emoji: '🕊️', text: 'Apprends-moi la confiance en Toi' },
-            { emoji: '💫', text: 'Mon Dieu, je sais que Tu vois ce que je ne vois pas' },
-            { emoji: '🌙', text: 'Que Ta Paix descende sur moi comme la nuit sur la terre' },
-          ]} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Écrivez votre Munajat — confiez à Dieu ce que votre cœur porte de trop lourd..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole B : Anxiété / Panique"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protB-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Seigneur, apaise mon cœur agité...' },
+              { emoji: '💡', text: 'Je reconnais que mon anxiété me parle de...' },
+              { emoji: '🌿', text: 'Dans ce souffle, je trouve le calme de...' },
+              { emoji: '🌊', text: 'Mon corps porte la mémoire de...' },
+              { emoji: '🕊️', text: 'Je me libère de la peur de...' },
+            ]}
+          />
 
           <MeditationTimer id="protB-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>

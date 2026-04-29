@@ -9,7 +9,7 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
+import MunajatTextarea from './MunajatTextarea';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
 
@@ -514,55 +514,18 @@ export default function ProtocolD() {
             </div>
           </div>
 
-          <p style={{
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            color: '#C9A227',
-            marginBottom: '0.5rem',
-          }}>
-            Prompts pour votre Munajat :
-          </p>
-
-          <PromptChips prompts={[
-            { emoji: '🔥', text: 'Seigneur, je suis en colère et je ne veux pas pardonner' },
-            { emoji: '💔', text: 'Mon Dieu, l\'injustice me consume de l\'intérieur' },
-            { emoji: '🤲', text: 'Apprends-moi à lâcher sans renoncer à ma dignité' },
-            { emoji: '🪞', text: 'Montre-moi ce que ma colère cache — je veux la vérité' },
-            { emoji: '🕊️', text: 'Donne-moi la force de pardonner, pas la faiblesse d\'oublier' },
-            { emoji: '⭐', text: 'Mon Dieu, transforme ma colère en lumière et ma blessure en sagesse' },
-          ]} />
-
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Ici, tout est permis — la rage, l'injustice, le refus de pardonner. Écrivez avec honnêteté totale..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole D : Colère & Relationnel"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protD-munajat"
+            prompts={[
+              { emoji: '🔥', text: 'Seigneur, libère mon cœur de la colère...' },
+              { emoji: '💔', text: 'Ma colère me révèle que...' },
+              { emoji: '🕊️', text: 'Je choisis de pardonner car...' },
+              { emoji: '🪞', text: 'Derrière ma douleur il y a...' },
+              { emoji: '🌿', text: 'J\'ouvre mon cœur à la paix de...' },
+            ]}
+          />
 
           <MeditationTimer id="protD-phase3" initialSeconds={600} label="Phase 3 — Munajat Clinique" />
         </section>
