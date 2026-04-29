@@ -10,7 +10,10 @@ import ProtocolC from '@/components/book/ProtocolC';
 import ProtocolD from '@/components/book/ProtocolD';
 import ProtocolE from '@/components/book/ProtocolE';
 import ProtocolF from '@/components/book/ProtocolF';
+import ProtocolG from '@/components/book/ProtocolG';
+import ProtocolH from '@/components/book/ProtocolH';
 import SavedJournal from '@/components/book/SavedJournal';
+import SearchDialog from '@/components/book/SearchDialog';
 
 // Navigation items
 const NAV_ITEMS = [
@@ -23,6 +26,8 @@ const NAV_ITEMS = [
   { id: 'protocole-d', label: 'D · Colère' },
   { id: 'protocole-e', label: 'E · Estime' },
   { id: 'protocole-f', label: 'F · Deuil' },
+  { id: 'protocole-g', label: 'G · Peur' },
+  { id: 'protocole-h', label: 'H · Solitude' },
 ];
 
 // Custom hook: detect if element is in viewport (fires once)
@@ -81,6 +86,7 @@ export default function Home() {
   });
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Responsive detection using matchMedia
   useEffect(() => {
@@ -135,8 +141,19 @@ export default function Home() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape: close journal panel or mobile menu
+      // Ctrl+K or Cmd+K: open search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+        return;
+      }
+
+      // Escape: close search, journal panel, or mobile menu
       if (e.key === 'Escape') {
+        if (isSearchOpen) {
+          setIsSearchOpen(false);
+          return;
+        }
         if (isJournalOpen) {
           setIsJournalOpen(false);
           return;
@@ -169,7 +186,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSection, isJournalOpen, isMenuOpen, scrollToSection]);
+  }, [activeSection, isJournalOpen, isMenuOpen, isSearchOpen, scrollToSection]);
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -308,6 +325,30 @@ export default function Home() {
                 </button>
               ))}
 
+              {/* Search Button */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                style={{
+                  background: isSearchOpen
+                    ? 'rgba(201, 162, 39, 0.15)'
+                    : 'rgba(201, 162, 39, 0.06)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  borderRadius: '8px',
+                  padding: '0.4rem 0.75rem',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: '#D4AF37',
+                  fontFamily: '"Inter", sans-serif',
+                  letterSpacing: '0.02em',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  marginLeft: '0.35rem',
+                }}
+              >
+                🔍 Rechercher
+              </button>
+
               {/* Journal Button */}
               <button
                 onClick={() => setIsJournalOpen(true)}
@@ -326,7 +367,7 @@ export default function Home() {
                   letterSpacing: '0.02em',
                   transition: 'all 0.2s ease',
                   whiteSpace: 'nowrap',
-                  marginLeft: '0.35rem',
+                  marginLeft: '0.15rem',
                 }}
               >
                 📜 Journal
@@ -341,6 +382,24 @@ export default function Home() {
               alignItems: 'center',
               gap: '0.5rem',
             }}>
+              {/* Search Button (mobile) */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                aria-label="Ouvrir la recherche"
+                style={{
+                  background: 'rgba(201, 162, 39, 0.06)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  borderRadius: '8px',
+                  padding: '0.4rem 0.6rem',
+                  cursor: 'pointer',
+                  color: '#D4AF37',
+                  fontSize: '0.9rem',
+                  lineHeight: 1,
+                }}
+              >
+                🔍
+              </button>
+
               {/* Journal Button (mobile) */}
               <button
                 onClick={() => setIsJournalOpen(true)}
@@ -540,6 +599,18 @@ export default function Home() {
               <ProtocolF />
             </div>
           </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-g">
+              <ProtocolG />
+            </div>
+          </FadeInSection>
+
+          <FadeInSection>
+            <div id="protocole-h">
+              <ProtocolH />
+            </div>
+          </FadeInSection>
         </div>
       </main>
 
@@ -620,6 +691,51 @@ export default function Home() {
           </p>
         </div>
       </footer>
+
+      {/* Floating Search Button (bottom-left) */}
+      <button
+        onClick={() => setIsSearchOpen(true)}
+        aria-label="Rechercher (Ctrl+K)"
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          left: '2rem',
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          border: '1.5px solid rgba(201, 162, 39, 0.5)',
+          background: 'rgba(13, 17, 23, 0.85)',
+          backdropFilter: 'blur(8px)',
+          color: '#D4AF37',
+          fontSize: '1.1rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 90,
+          opacity: showBackToTop ? 1 : 0,
+          pointerEvents: showBackToTop ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease, background 0.2s ease',
+          padding: 0,
+          lineHeight: 1,
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.15)';
+          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.8)';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(13, 17, 23, 0.85)';
+          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.5)';
+        }}
+      >
+        🔍
+      </button>
+
+      {/* Search Dialog */}
+      <SearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
 
       {/* Back-to-Top Button */}
       <button

@@ -48,6 +48,19 @@ function playCompletionChime() {
   }
 }
 
+const buttonBaseStyle = {
+  padding: '0.4rem 1rem',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontSize: '0.85rem',
+  fontWeight: 500,
+  minHeight: '44px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease',
+};
+
 export default function MeditationTimer({ id, initialSeconds, label }: MeditationTimerProps) {
   const [seconds, setSeconds] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
@@ -151,6 +164,10 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        boxShadow: isRunning
+          ? 'inset 0 0 15px rgba(201, 162, 39, 0.1), 0 0 8px rgba(201, 162, 39, 0.2)'
+          : 'inset 0 0 10px rgba(0, 0, 0, 0.3)',
+        transition: 'box-shadow 0.5s ease',
       }}>
         <div style={{
           width: '100px',
@@ -161,27 +178,41 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'column',
+          boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.4)',
         }}>
           <span style={{
             fontSize: '1.5rem',
             fontWeight: 700,
             fontFamily: 'monospace',
             color: isComplete && !isDismissed ? '#2E8B57' : '#F5F0E1',
+            transition: 'color 0.5s ease',
           }}>
             {display}
           </span>
           {isComplete && !isDismissed && (
-            <span style={{ fontSize: '0.65rem', color: '#2E8B57' }}>✓ Terminé</span>
+            <span className="checkmark-animated" style={{
+              fontSize: '0.65rem',
+              color: '#2E8B57',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+            }}>
+              <span style={{
+                display: 'inline-block',
+                animation: 'checkmark-pop 0.5s ease-out forwards',
+              }}>✓</span> Terminé
+            </span>
           )}
         </div>
       </div>
 
-      {/* Elapsed time display */}
+      {/* Elapsed time display with transition */}
       {(isRunning || (seconds > 0 && !isDismissed)) && (
         <span style={{
           fontSize: '0.72rem',
           color: '#9B9590',
           letterSpacing: '0.03em',
+          transition: 'opacity 0.3s ease',
         }}>
           Écoulé: {elapsedDisplay}
         </span>
@@ -191,15 +222,21 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
         {!isRunning && !isComplete && (
           <button
             onClick={handleStart}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(201, 162, 39, 0.12)';
+              e.currentTarget.style.transform = 'scale(1.04)';
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(201, 162, 39, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             style={{
-              padding: '0.4rem 1rem',
-              borderRadius: '8px',
+              ...buttonBaseStyle,
               border: '1px solid #C9A227',
               background: 'transparent',
               color: '#C9A227',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: 500,
             }}
           >
             ▶ Démarrer
@@ -208,15 +245,21 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
         {isRunning && (
           <button
             onClick={handlePause}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(201, 162, 39, 0.25)';
+              e.currentTarget.style.transform = 'scale(1.04)';
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(201, 162, 39, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(201, 162, 39, 0.15)';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             style={{
-              padding: '0.4rem 1rem',
-              borderRadius: '8px',
+              ...buttonBaseStyle,
               border: '1px solid #D4AF37',
               background: 'rgba(201, 162, 39, 0.15)',
               color: '#D4AF37',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: 500,
             }}
           >
             ⏸ Pause
@@ -224,14 +267,21 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
         )}
         <button
           onClick={handleReset}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(155, 149, 144, 0.1)';
+            e.currentTarget.style.transform = 'scale(1.04)';
+            e.currentTarget.style.borderColor = 'rgba(155, 149, 144, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.borderColor = 'rgba(155, 149, 144, 0.3)';
+          }}
           style={{
-            padding: '0.4rem 1rem',
-            borderRadius: '8px',
+            ...buttonBaseStyle,
             border: '1px solid rgba(155, 149, 144, 0.3)',
             background: 'transparent',
             color: '#9B9590',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
           }}
         >
           ↻ Reset
@@ -239,14 +289,21 @@ export default function MeditationTimer({ id, initialSeconds, label }: Meditatio
         {isComplete && !isDismissed && (
           <button
             onClick={handleComplete}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(46, 139, 87, 0.25)';
+              e.currentTarget.style.transform = 'scale(1.04)';
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(46, 139, 87, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(46, 139, 87, 0.15)';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             style={{
-              padding: '0.4rem 1rem',
-              borderRadius: '8px',
+              ...buttonBaseStyle,
               border: '1px solid #2E8B57',
               background: 'rgba(46, 139, 87, 0.15)',
               color: '#2E8B57',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
               fontWeight: 600,
             }}
           >

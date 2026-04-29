@@ -8,13 +8,14 @@ interface CalloutProps {
   children: React.ReactNode;
 }
 
-const variantStyles: Record<string, { bg: string; border: string; icon: string; iconColor: string; titleColor: string }> = {
+const variantStyles: Record<string, { bg: string; border: string; icon: string; iconColor: string; titleColor: string; animation: string }> = {
   info: {
     bg: 'rgba(0, 212, 255, 0.08)',
     border: 'rgba(0, 212, 255, 0.3)',
     icon: 'ℹ️',
     iconColor: '#00D4FF',
     titleColor: '#00D4FF',
+    animation: 'icon-glow-subtle 3s ease-in-out infinite',
   },
   warning: {
     bg: 'rgba(201, 162, 39, 0.08)',
@@ -22,6 +23,7 @@ const variantStyles: Record<string, { bg: string; border: string; icon: string; 
     icon: '⚠️',
     iconColor: '#D4AF37',
     titleColor: '#D4AF37',
+    animation: 'icon-glow-subtle 2.5s ease-in-out infinite',
   },
   danger: {
     bg: 'rgba(220, 38, 38, 0.08)',
@@ -29,6 +31,7 @@ const variantStyles: Record<string, { bg: string; border: string; icon: string; 
     icon: '🔴',
     iconColor: '#DC2626',
     titleColor: '#DC2626',
+    animation: 'icon-glow-subtle 2s ease-in-out infinite',
   },
   success: {
     bg: 'rgba(46, 139, 87, 0.08)',
@@ -36,6 +39,7 @@ const variantStyles: Record<string, { bg: string; border: string; icon: string; 
     icon: '✅',
     iconColor: '#2E8B57',
     titleColor: '#2E8B57',
+    animation: 'icon-glow-subtle 3.5s ease-in-out infinite',
   },
 };
 
@@ -43,7 +47,7 @@ export default function Callout({ variant, title, children }: CalloutProps) {
   const styles = variantStyles[variant] || variantStyles.info;
 
   return (
-    <div style={{
+    <div className="fade-in-up" style={{
       padding: '1rem 1.25rem',
       borderRadius: '10px',
       background: styles.bg,
@@ -57,7 +61,11 @@ export default function Callout({ variant, title, children }: CalloutProps) {
         gap: '0.5rem',
         marginBottom: '0.5rem',
       }}>
-        <span style={{ fontSize: '1.1rem' }}>{styles.icon}</span>
+        <span style={{
+          fontSize: '1.1rem',
+          display: 'inline-block',
+          animation: styles.animation,
+        }}>{styles.icon}</span>
         <span style={{
           fontSize: '0.9rem',
           fontWeight: 700,

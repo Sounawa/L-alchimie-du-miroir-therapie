@@ -21,8 +21,35 @@ export default function CoverPage() {
         linear-gradient(180deg, #0D1117 0%, #161B22 50%, #0D1117 100%)
       `,
     }}>
+      {/* Noise texture overlay */}
+      <div className="noise-overlay" style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+      }} />
+
+      {/* Floating particles */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              position: 'absolute',
+              width: `${2 + (i % 3)}px`,
+              height: `${2 + (i % 3)}px`,
+              borderRadius: '50%',
+              background: `rgba(212, 175, 55, ${0.15 + (i % 4) * 0.08})`,
+              left: `${8 + (i * 7.5) % 84}%`,
+              bottom: `-${5 + (i * 13) % 20}px`,
+              animation: `float-particle ${8 + (i % 5) * 3}s linear ${i * 1.2}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Animated gradient border wrapper */}
-      <div className="cover-border-wrapper">
+      <div className="cover-border-wrapper" style={{ position: 'relative', zIndex: 2 }}>
         {/* Decorative corner flourishes with parallax animation */}
         <div className="corner-decor corner-top-left" style={{
           position: 'absolute',
@@ -78,15 +105,41 @@ export default function CoverPage() {
           <div style={{ width: '40px', height: '1px', background: 'linear-gradient(to left, transparent, #C9A227)' }} />
         </div>
 
-        {/* Mirror emoji with glow-pulse */}
-        <div className="mirror-glow" style={{
-          fontSize: '5rem',
+        {/* Mirror emoji with rotating ring effect */}
+        <div style={{
+          position: 'relative',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           marginBottom: '1.5rem',
-          animation: 'glow-pulse 4s ease-in-out infinite alternate',
-          filter: 'drop-shadow(0 0 20px rgba(201, 162, 39, 0.4))',
-          lineHeight: 1,
         }}>
-          🪞
+          {/* Rotating ring */}
+          <div className="mirror-ring" style={{
+            position: 'absolute',
+            width: '130px',
+            height: '130px',
+            borderRadius: '50%',
+            border: '1px solid transparent',
+            borderTopColor: 'rgba(201, 162, 39, 0.3)',
+            borderRightColor: 'rgba(201, 162, 39, 0.15)',
+          }} />
+          <div className="mirror-ring-inner" style={{
+            position: 'absolute',
+            width: '145px',
+            height: '145px',
+            borderRadius: '50%',
+            border: '1px solid transparent',
+            borderBottomColor: 'rgba(0, 212, 255, 0.15)',
+            borderLeftColor: 'rgba(0, 212, 255, 0.08)',
+          }} />
+          <div className="mirror-glow" style={{
+            fontSize: '5rem',
+            lineHeight: 1,
+            position: 'relative',
+            zIndex: 1,
+          }}>
+            🪞
+          </div>
         </div>
 
         {/* Main title with shimmer animation */}
@@ -104,7 +157,7 @@ export default function CoverPage() {
           L&apos;Alchimie du Miroir
         </h1>
 
-        {/* Subtitle — updated to better contrast color */}
+        {/* Subtitle */}
         <p style={{
           fontFamily: '"Inter", sans-serif',
           fontSize: 'clamp(0.7rem, 2vw, 0.85rem)',
@@ -140,8 +193,8 @@ export default function CoverPage() {
           pour accompagner le chemin de la guérison intérieure.
         </p>
 
-        {/* Professional badge — with 44px min-height for mobile accessibility */}
-        <div style={{
+        {/* Professional badge — with pulse animation */}
+        <div className="professional-badge" style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.5rem',
@@ -151,6 +204,7 @@ export default function CoverPage() {
           border: '2px solid #2E8B57',
           background: 'rgba(46, 139, 87, 0.08)',
           marginBottom: '2.5rem',
+          animation: 'badge-pulse 3s ease-in-out infinite',
         }}>
           <span style={{ fontSize: '1rem' }}>🕉️</span>
           <span style={{
@@ -216,6 +270,33 @@ export default function CoverPage() {
         </p>
       </div>
 
+      {/* Scroll indicator at the bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: '2rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.3rem',
+        zIndex: 2,
+        animation: 'gentle-bounce 2s ease-in-out infinite',
+        opacity: 0.6,
+      }}>
+        <span style={{
+          fontSize: '0.6rem',
+          color: '#9B9590',
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+        }}>
+          Découvrir
+        </span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#C9A227' }}>
+          <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes glow-pulse {
@@ -231,6 +312,11 @@ export default function CoverPage() {
             filter: drop-shadow(0 0 20px rgba(201, 162, 39, 0.5));
             transform: scale(1.02);
           }
+        }
+
+        .mirror-glow {
+          animation: glow-pulse 4s ease-in-out infinite alternate;
+          filter: drop-shadow(0 0 20px rgba(201, 162, 39, 0.4));
         }
 
         .cover-border-wrapper {
@@ -310,6 +396,45 @@ export default function CoverPage() {
           0% { transform: translate(0, 0); }
           50% { transform: translate(-3px, -2px); }
           100% { transform: translate(2px, -3px); }
+        }
+
+        /* Rotating ring around mirror */
+        .mirror-ring {
+          animation: ring-rotate 12s linear infinite;
+        }
+        .mirror-ring-inner {
+          animation: ring-rotate-reverse 18s linear infinite;
+        }
+
+        @keyframes ring-rotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes ring-rotate-reverse {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(-360deg); }
+        }
+
+        /* Floating particles */
+        @keyframes float-particle {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.8;
+          }
+          90% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translateY(-100vh) translateX(20px);
+            opacity: 0;
+          }
+        }
+
+        .particle {
+          pointer-events: none;
         }
       `}</style>
     </div>

@@ -9,9 +9,9 @@ import ArabicVerse from './ArabicVerse';
 import BookTable from './BookTable';
 import MeditationTimer from './MeditationTimer';
 import MirrorQuestion from './MirrorQuestion';
-import PromptChips from './PromptChips';
 import ExerciseBox from './ExerciseBox';
 import OrnamentDivider from './OrnamentDivider';
+import MunajatTextarea from './MunajatTextarea';
 
 export default function ProtocolA() {
   return (
@@ -429,57 +429,19 @@ export default function ProtocolA() {
             sans jugement. Cette phase libère la parole ensablée du trauma.
           </p>
 
-          <p style={{
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            color: '#C9A227',
-            marginBottom: '0.5rem',
-          }}>
-            Prompts pour le dialogue :
-          </p>
-
-          <PromptChips prompts={[
-            { emoji: '🙏', text: 'Ô Dieu, je souffrais et Tu n\'étais pas là...' },
-            { emoji: '💫', text: 'Seigneur, montre-moi le sens caché de cette épreuve' },
-            { emoji: '🤲', text: 'Mon Dieu, donne-moi la force de pardonner' },
-            { emoji: '🕊️', text: 'Seigneur, je veux me libérer de cette peur' },
-            { emoji: '💎', text: 'Ô Toi qui guéris les cœurs brisés, guéris le mien' },
-            { emoji: '🌅', text: 'Mon âme cherche la paix que rien ne peut troubler' },
-          ]} />
-
-          <div style={{
-            marginTop: '1rem',
-          }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: '#9B9590',
-              marginBottom: '0.5rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Votre dialogue intime (journal de Munajat) :
-            </label>
-            <textarea
-              placeholder="Écrivez librement ce que votre cœur dit à Dieu dans cet espace de sécurité..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(201, 162, 39, 0.15)',
-                background: 'rgba(13, 17, 23, 0.6)',
-                color: '#E8E4DC',
-                fontSize: '0.9rem',
-                lineHeight: 1.7,
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <MunajatTextarea
+            protocolName="Protocole A : Trauma / PTSD"
+            phaseName="Phase 3 : Munajat Clinique"
+            id="protA-munajat"
+            prompts={[
+              { emoji: '🙏', text: 'Ô Dieu, je souffrais et Tu n\'étais pas là...' },
+              { emoji: '💫', text: 'Seigneur, montre-moi le sens caché de cette épreuve' },
+              { emoji: '🤲', text: 'Mon Dieu, donne-moi la force de pardonner' },
+              { emoji: '🕊️', text: 'Seigneur, je veux me libérer de cette peur' },
+              { emoji: '💎', text: 'Ô Toi qui guéris les cœurs brisés, guéris le mien' },
+              { emoji: '🌅', text: 'Mon âme cherche la paix que rien ne peut troubler' },
+            ]}
+          />
 
           <MeditationTimer id="protA-phase3" initialSeconds={900} label="Phase 3 — Munajat Clinique" />
         </section>
