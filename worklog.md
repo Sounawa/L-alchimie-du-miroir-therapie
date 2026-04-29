@@ -484,3 +484,47 @@ The application now has complete content with all protocols and should render co
 3. Build Part III: Annexes section (Glossary, Bibliography, Audio Scripts)
 4. Add dark/light theme toggle
 5. Connect journal to Prisma DB for server-side persistence
+
+---
+Task ID: 17
+Agent: main-orchestrator
+Task: Navigation redesign - sidebar layout replacing crowded top bar
+
+Work Log:
+- User reported navigation bar was cramped with 15 items, text cut off at "E · Esti"
+- Completely redesigned navigation from horizontal top bar to sidebar layout
+- Removed all horizontal nav items from the top bar
+- Created desktop sidebar (260px, sticky, scrollable, grouped navigation)
+- Created mobile drawer sidebar (290px, slides in from left with overlay)
+- Mobile top bar simplified to just logo + hamburger + search/journal buttons
+- Cover page remains full-width hero (no sidebar overlap)
+- Protocol items grouped by therapeutic category
+- Gold accent active states with letter code badges
+- Search and Journal buttons in sidebar footer
+- Removed unused `pastCover` state variable
+- Ran ESLint: 0 errors
+- Pushed to GitHub: main branch
+
+## Current Project Status / Assessment
+
+Navigation completely redesigned. The app now uses a professional sidebar layout:
+- **Desktop**: Fixed sidebar (260px) on the left with grouped navigation, search/journal buttons in footer
+- **Mobile**: Slide-in drawer from left with overlay backdrop, simplified top bar
+- **Cover page**: Full-width hero, no sidebar interference
+- **GitHub Pages**: `output: "export"` already configured in next.config.ts
+- **30 React components** in /src/components/book/ + 3 hooks
+- **15 content sections**: Cover, Sommaire, Foundations, Protocols A-K
+- **48 meditation timers** with sound notifications
+
+## Unresolved Issues / Risks
+1. MunajatTextarea not applied to all protocols (only ProtocolA/E confirmed)
+2. Part III Annexes (Glossaire, Bibliographie, Scripts Audio, Certificat) not yet built
+3. GitHub Pages deployment not yet triggered (needs GitHub Actions workflow or manual deploy)
+4. basePath may need configuration for repo-specific URL (/L-alchimie-du-miroir-therapie/)
+
+## Priority Recommendations for Next Phase
+1. Add GitHub Actions workflow for automatic deployment to GitHub Pages
+2. Apply MunajatTextarea to all protocols B-H Phase 3 Munajat sections
+3. Build Part III: Annexes section
+4. Add dark/light theme toggle
+5. Continue styling improvements across all components
