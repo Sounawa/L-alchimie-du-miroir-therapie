@@ -18,186 +18,236 @@ import ProtocolK from '@/components/book/ProtocolK';
 import SavedJournal from '@/components/book/SavedJournal';
 import SearchDialog from '@/components/book/SearchDialog';
 
-// Navigation items
-const NAV_ITEMS = [
-  { id: 'cover', label: 'Accueil' },
-  { id: 'sommaire', label: 'Sommaire' },
-  { id: 'fondations', label: 'Fondations' },
-  { id: 'protocole-a', label: 'A · Trauma' },
-  { id: 'protocole-b', label: 'B · Anxiété' },
-  { id: 'protocole-c', label: 'C · Dépression' },
-  { id: 'protocole-d', label: 'D · Colère' },
-  { id: 'protocole-e', label: 'E · Estime' },
-  { id: 'protocole-f', label: 'F · Deuil' },
-  { id: 'protocole-g', label: 'G · Peur' },
-  { id: 'protocole-h', label: 'H · Solitude' },
-  { id: 'protocole-i', label: 'I · Addictions' },
-  { id: 'protocole-j', label: 'J · Burnout' },
-  { id: 'protocole-k', label: 'K · Culpabilité' },
+/* ────────────────────────────────────────────────
+   Navigation data — grouped by section
+   ──────────────────────────────────────────────── */
+interface NavItem {
+  id: string;
+  label: string;
+  code?: string;
+  emoji?: string;
+}
+
+interface NavGroup {
+  label?: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    items: [
+      { id: 'sommaire', label: 'Sommaire', emoji: '📖' },
+      { id: 'fondations', label: 'Fondations', emoji: '🏛️' },
+    ],
+  },
+  {
+    label: 'Trauma & Émotions Fondamentales',
+    items: [
+      { id: 'protocole-a', label: 'Trauma / PTSD', code: 'A' },
+      { id: 'protocole-b', label: 'Anxiété / Panique', code: 'B' },
+      { id: 'protocole-c', label: 'Dépression', code: 'C' },
+      { id: 'protocole-d', label: 'Colère', code: 'D' },
+      { id: 'protocole-e', label: 'Estime de Soi', code: 'E' },
+      { id: 'protocole-f', label: 'Deuil & Perte', code: 'F' },
+    ],
+  },
+  {
+    label: 'Souffrance Relationnelle & Existentielle',
+    items: [
+      { id: 'protocole-g', label: 'Peur & Phobies', code: 'G' },
+      { id: 'protocole-h', label: 'Solitude', code: 'H' },
+      { id: 'protocole-i', label: 'Addictions', code: 'I' },
+      { id: 'protocole-j', label: 'Burnout', code: 'J' },
+      { id: 'protocole-k', label: 'Culpabilité', code: 'K' },
+    ],
+  },
 ];
 
-// Custom hook: detect if element is in viewport (fires once)
-function useInView(threshold = 0.1) {
+const ALL_NAV_IDS = NAV_GROUPS.flatMap(g => g.items.map(i => i.id));
+
+/* ────────────────────────────────────────────────
+   Fade-in wrapper
+   ──────────────────────────────────────────────── */
+function useInView(threshold = 0.08) {
   const ref = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.unobserve(el);
-        }
-      },
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIsInView(true); obs.unobserve(el); } },
       { threshold }
     );
-
-    observer.observe(el);
-    return () => observer.disconnect();
+    obs.observe(el);
+    return () => obs.disconnect();
   }, [threshold]);
-
   return { ref, isInView };
 }
 
-// Animated wrapper component for fade-in sections
 function FadeInSection({ children }: { children: React.ReactNode }) {
-  const { ref, isInView } = useInView(0.08);
-
+  const { ref, isInView } = useInView();
   return (
-    <div
-      ref={ref}
-      style={{
-        opacity: isInView ? 1 : 0,
-        transform: isInView ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'opacity 0.6s ease, transform 0.6s ease',
-      }}
-    >
+    <div ref={ref} style={{
+      opacity: isInView ? 1 : 0,
+      transform: isInView ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'opacity 0.6s ease, transform 0.6s ease',
+    }}>
       {children}
     </div>
   );
 }
 
+/* ────────────────────────────────────────────────
+   Main page component
+   ──────────────────────────────────────────────── */
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isJournalOpen, setIsJournalOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('cover');
-  const [prevActiveSection, setPrevActiveSection] = useState('cover');
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(max-width: 767px)').matches;
-  });
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('sommaire');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  // Responsive detection using matchMedia
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
+  );
+  /* ── responsive ── */
   useEffect(() => {
-    const mql = window.matchMedia('(max-width: 767px)');
-    const handleChange = (e: MediaQueryListEvent) => {
+    const mql = window.matchMedia('(max-width: 1023px)');
+    const handler = (e: MediaQueryListEvent) => {
       setIsMobile(e.matches);
-      if (e.matches) setIsMenuOpen(false);
+      if (e.matches) setIsSidebarOpen(false);
     };
-
-    mql.addEventListener('change', handleChange);
-    return () => mql.removeEventListener('change', handleChange);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
-  // Track scroll position for active section highlighting, progress bar, back-to-top
+  /* ── scroll tracking ── */
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 50);
       setShowBackToTop(scrollY > 600);
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docH > 0 ? Math.min((scrollY / docH) * 100, 100) : 0);
 
-      // Reading progress
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-      setScrollProgress(Math.min(progress, 100));
-
-      // Determine active section
-      const sections = NAV_ITEMS.map(item => {
-        const el = document.getElementById(item.id);
-        if (!el) return { id: item.id, top: 0 };
-        return { id: item.id, top: el.getBoundingClientRect().top };
+      const sections = ALL_NAV_IDS.map(id => {
+        const el = document.getElementById(id);
+        return { id, top: el ? el.getBoundingClientRect().top : 0 };
       });
-
       const current = sections.find(s => s.top >= -200 && s.top < 200);
-      if (current && current.id !== activeSection) {
-        setPrevActiveSection(activeSection);
-        setActiveSection(current.id);
-      }
+      if (current) setActiveSection(current.id);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeSection]);
-
-  const scrollToSection = useCallback((id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setIsMenuOpen(false);
-    }
   }, []);
 
-  // Keyboard navigation
+  /* ── navigation ── */
+  const scrollToSection = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (isMobile) setIsSidebarOpen(false);
+  }, [isMobile]);
+
+  /* ── keyboard ── */
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+K or Cmd+K: open search
+    const handleKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        setIsSearchOpen((prev) => !prev);
+        setIsSearchOpen(prev => !prev);
         return;
       }
-
-      // Escape: close search, journal panel, or mobile menu
       if (e.key === 'Escape') {
-        if (isSearchOpen) {
-          setIsSearchOpen(false);
-          return;
-        }
-        if (isJournalOpen) {
-          setIsJournalOpen(false);
-          return;
-        }
-        if (isMenuOpen) {
-          setIsMenuOpen(false);
-          return;
-        }
-      }
-
-      // ArrowLeft / ArrowRight: navigate sections
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        const currentIndex = NAV_ITEMS.findIndex(item => item.id === activeSection);
-        if (currentIndex === -1) return;
-
-        let nextIndex: number;
-        if (e.key === 'ArrowRight') {
-          nextIndex = currentIndex < NAV_ITEMS.length - 1 ? currentIndex + 1 : 0;
-        } else {
-          nextIndex = currentIndex > 0 ? currentIndex - 1 : NAV_ITEMS.length - 1;
-        }
-
-        const nextItem = NAV_ITEMS[nextIndex];
-        if (nextItem) {
-          e.preventDefault();
-          scrollToSection(nextItem.id);
-        }
+        if (isSearchOpen) { setIsSearchOpen(false); return; }
+        if (isJournalOpen) { setIsJournalOpen(false); return; }
+        if (isMobile && isSidebarOpen) { setIsSidebarOpen(false); return; }
       }
     };
+    window.addEventListener('keydown', handleKey, { passive: false });
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isSearchOpen, isJournalOpen, isMobile, isSidebarOpen]);
 
-    window.addEventListener('keydown', handleKeyDown, { passive: false });
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSection, isJournalOpen, isMenuOpen, isSearchOpen, scrollToSection]);
+  /* ── sidebar nav item renderer ── */
+  const renderNavItem = (item: NavItem) => {
+    const isActive = activeSection === item.id;
+    return (
+      <button
+        key={item.id}
+        onClick={() => scrollToSection(item.id)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.65rem',
+          width: '100%',
+          padding: '0.5rem 0.75rem',
+          borderRadius: '8px',
+          border: 'none',
+          cursor: 'pointer',
+          textAlign: 'left',
+          background: isActive
+            ? 'rgba(201, 162, 39, 0.12)'
+            : 'transparent',
+          transition: 'all 0.2s ease',
+          color: isActive ? '#D4AF37' : '#B5AFA8',
+          fontSize: '0.82rem',
+          fontWeight: isActive ? 600 : 400,
+          fontFamily: '"Inter", sans-serif',
+          lineHeight: 1.4,
+        }}
+        onMouseEnter={(e) => {
+          if (!isActive) {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.06)';
+            (e.currentTarget as HTMLElement).style.color = '#E8E4DC';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isActive) {
+            (e.currentTarget as HTMLElement).style.background = 'transparent';
+            (e.currentTarget as HTMLElement).style.color = '#B5AFA8';
+          }
+        }}
+      >
+        {item.code ? (
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '22px',
+            height: '22px',
+            borderRadius: '6px',
+            background: isActive
+              ? 'linear-gradient(135deg, #C9A227, #8B6914)'
+              : 'rgba(201, 162, 39, 0.1)',
+            color: isActive ? '#0D1117' : '#C9A227',
+            fontSize: '0.68rem',
+            fontWeight: 800,
+            flexShrink: 0,
+            transition: 'all 0.2s ease',
+          }}>
+            {item.code}
+          </span>
+        ) : item.emoji ? (
+          <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{item.emoji}</span>
+        ) : null}
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {item.label}
+        </span>
+        {isActive && (
+          <span style={{
+            marginLeft: 'auto',
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: '#D4AF37',
+            flexShrink: 0,
+            boxShadow: '0 0 6px rgba(212, 175, 55, 0.4)',
+          }} />
+        )}
+      </button>
+    );
+  };
 
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
+  /* ═══════════════════════════════════════════════
+     RENDER
+     ═══════════════════════════════════════════════ */
   return (
     <div style={{
       minHeight: '100vh',
@@ -206,7 +256,8 @@ export default function Home() {
       background: '#0D1117',
       color: '#E8E4DC',
     }}>
-      {/* Reading Progress Bar */}
+
+      {/* ─── Reading Progress Bar ─── */}
       <div style={{
         position: 'fixed',
         top: 0,
@@ -214,7 +265,7 @@ export default function Home() {
         right: 0,
         height: '3px',
         background: 'transparent',
-        zIndex: 101,
+        zIndex: 201,
       }}>
         <div style={{
           height: '100%',
@@ -225,263 +276,533 @@ export default function Home() {
         }} />
       </div>
 
-      {/* Breathing indicator near progress bar */}
-      {isScrolled && (
-        <div style={{
-          position: 'fixed',
-          top: '8px',
-          left: `${Math.max(scrollProgress, 5)}%`,
-          transform: 'translateX(-50%)',
-          zIndex: 102,
-          pointerEvents: 'none',
-          transition: 'left 0.15s ease-out',
-        }}>
-          <div className="breathing-dot" />
-        </div>
-      )}
+      {/* ═══════════════════════════════════════════
+          COVER PAGE — Full-width, no sidebar
+          ═══════════════════════════════════════════ */}
+      <div id="cover">
+        <CoverPage />
+      </div>
 
-      {/* Navigation Bar */}
-      <nav style={{
-        position: 'fixed',
-        top: '3px',
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: isScrolled
-          ? 'rgba(13, 17, 23, 0.95)'
-          : 'rgba(13, 17, 23, 0)',
-        backdropFilter: isScrolled ? 'blur(12px)' : 'none',
-        borderBottom: isScrolled
-          ? '1px solid rgba(201, 162, 39, 0.15)'
-          : '1px solid transparent',
-        transition: 'all 0.3s ease',
-        padding: '0 1.5rem',
+      {/* ═══════════════════════════════════════════
+          CONTENT AREA — Sidebar + Main
+          ═══════════════════════════════════════════ */}
+      <div style={{
+        display: 'flex',
+        minHeight: '100vh',
       }}>
-        <div style={{
-          maxWidth: '960px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '56px',
-        }}>
-          {/* Logo / Title */}
-          <button
-            onClick={() => scrollToSection('cover')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: 0,
-            }}
-          >
-            <span style={{ fontSize: '1.3rem' }}>🪞</span>
-            <span style={{
-              fontFamily: '"Amiri", serif',
-              fontSize: '1rem',
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #D4AF37, #C9A227)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              L&apos;Alchimie du Miroir
-            </span>
-          </button>
 
-          {/* Desktop Navigation — only shown on screens >= 768px */}
-          {!isMobile && (
+        {/* ─── SIDEBAR (desktop) ─── */}
+        {!isMobile && (
+          <aside style={{
+            position: 'sticky',
+            top: '3px',
+            width: '260px',
+            minWidth: '260px',
+            height: 'calc(100vh - 3px)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid rgba(201, 162, 39, 0.1)',
+            background: 'rgba(13, 17, 23, 0.6)',
+            backdropFilter: 'blur(12px)',
+          }}>
+            {/* Sidebar header */}
             <div style={{
-              display: 'flex',
-              gap: '0.25rem',
-              alignItems: 'center',
+              padding: '1.25rem 1rem 0.75rem',
+              borderBottom: '1px solid rgba(201, 162, 39, 0.08)',
+              flexShrink: 0,
             }}>
-              {NAV_ITEMS.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  style={{
-                    background: activeSection === item.id
-                      ? 'rgba(201, 162, 39, 0.12)'
-                      : 'transparent',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.4rem 0.75rem',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: activeSection === item.id ? 600 : 400,
-                    color: activeSection === item.id
-                      ? '#D4AF37'
-                      : '#9B9590',
-                    fontFamily: '"Inter", sans-serif',
-                    letterSpacing: '0.02em',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                  className={
-                    activeSection === item.id && prevActiveSection !== item.id
-                      ? 'nav-flash'
-                      : undefined
-                  }
-                >
-                  {item.label}
-                </button>
-              ))}
+              <button
+                onClick={() => scrollToSection('cover')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  marginBottom: '0.25rem',
+                }}
+              >
+                <span style={{ fontSize: '1.2rem' }}>🪞</span>
+                <span style={{
+                  fontFamily: '"Amiri", serif',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #D4AF37, #C9A227)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>
+                  L&apos;Alchimie du Miroir
+                </span>
+              </button>
+              <p style={{
+                fontSize: '0.65rem',
+                color: '#9B9590',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                margin: 0,
+              }}>
+                Manuel de Méditation Thérapeutique
+              </p>
+            </div>
 
-              {/* Search Button */}
+            {/* Navigation items — scrollable */}
+            <nav className="dark-scroll" style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '0.75rem 0.5rem',
+            }}>
+              {NAV_GROUPS.map((group, gi) => (
+                <div key={gi} style={{ marginBottom: gi < NAV_GROUPS.length - 1 ? '1rem' : 0 }}>
+                  {group.label && (
+                    <p style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      color: 'rgba(201, 162, 39, 0.6)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      margin: '0 0 0.35rem 0.75rem',
+                      padding: '0.25rem 0',
+                    }}>
+                      {group.label}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                    {group.items.map(renderNavItem)}
+                  </div>
+                </div>
+              ))}
+            </nav>
+
+            {/* Sidebar footer — action buttons */}
+            <div style={{
+              padding: '0.75rem',
+              borderTop: '1px solid rgba(201, 162, 39, 0.08)',
+              flexShrink: 0,
+              display: 'flex',
+              gap: '0.5rem',
+            }}>
               <button
                 onClick={() => setIsSearchOpen(true)}
                 style={{
-                  background: isSearchOpen
-                    ? 'rgba(201, 162, 39, 0.15)'
-                    : 'rgba(201, 162, 39, 0.06)',
-                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.5rem',
                   borderRadius: '8px',
-                  padding: '0.4rem 0.75rem',
-                  cursor: 'pointer',
+                  border: '1px solid rgba(201, 162, 39, 0.15)',
+                  background: 'rgba(201, 162, 39, 0.04)',
+                  color: '#C9A227',
                   fontSize: '0.75rem',
-                  fontWeight: 500,
-                  color: '#D4AF37',
+                  cursor: 'pointer',
                   fontFamily: '"Inter", sans-serif',
-                  letterSpacing: '0.02em',
                   transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  marginLeft: '0.35rem',
+                  minHeight: '38px',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
+                }}
+              >
+                🔍 <span>Rechercher</span>
+              </button>
+              <button
+                onClick={() => setIsJournalOpen(true)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(201, 162, 39, 0.15)',
+                  background: 'rgba(201, 162, 39, 0.04)',
+                  color: '#C9A227',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  fontFamily: '"Inter", sans-serif',
+                  transition: 'all 0.2s ease',
+                  minHeight: '38px',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.04)';
+                }}
+              >
+                📜 <span>Journal</span>
+              </button>
+            </div>
+          </aside>
+        )}
+
+        {/* ─── MOBILE SIDEBAR OVERLAY ─── */}
+        {isMobile && isSidebarOpen && (
+          <div
+            onClick={() => setIsSidebarOpen(false)}
+            className="journal-overlay-enter"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.6)',
+              zIndex: 199,
+            }}
+          />
+        )}
+
+        {/* ─── MOBILE SIDEBAR DRAWER ─── */}
+        {isMobile && isSidebarOpen && (
+          <aside className="journal-panel-enter" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: '290px',
+            maxWidth: '85vw',
+            background: 'rgba(13, 17, 23, 0.98)',
+            backdropFilter: 'blur(16px)',
+            borderRight: '1px solid rgba(201, 162, 39, 0.15)',
+            zIndex: 200,
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '8px 0 32px rgba(0, 0, 0, 0.4)',
+          }}>
+            {/* Mobile sidebar header */}
+            <div style={{
+              padding: '1.25rem 1rem 0.75rem',
+              borderBottom: '1px solid rgba(201, 162, 39, 0.1)',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <button
+                onClick={() => scrollToSection('cover')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                <span style={{ fontSize: '1.2rem' }}>🪞</span>
+                <span style={{
+                  fontFamily: '"Amiri", serif',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  color: '#D4AF37',
+                }}>
+                  L&apos;Alchimie du Miroir
+                </span>
+              </button>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                style={{
+                  background: 'rgba(201, 162, 39, 0.08)',
+                  border: '1px solid rgba(201, 162, 39, 0.15)',
+                  borderRadius: '8px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#D4AF37',
+                  fontSize: '0.9rem',
+                  padding: 0,
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Mobile nav items */}
+            <nav className="dark-scroll" style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '0.75rem 0.5rem',
+            }}>
+              {NAV_GROUPS.map((group, gi) => (
+                <div key={gi} style={{ marginBottom: gi < NAV_GROUPS.length - 1 ? '1rem' : 0 }}>
+                  {group.label && (
+                    <p style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      color: 'rgba(201, 162, 39, 0.6)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      margin: '0 0 0.35rem 0.75rem',
+                      padding: '0.25rem 0',
+                    }}>
+                      {group.label}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                    {group.items.map(renderNavItem)}
+                  </div>
+                </div>
+              ))}
+            </nav>
+
+            {/* Mobile sidebar footer */}
+            <div style={{
+              padding: '0.75rem',
+              borderTop: '1px solid rgba(201, 162, 39, 0.1)',
+              flexShrink: 0,
+              display: 'flex',
+              gap: '0.5rem',
+            }}>
+              <button
+                onClick={() => { setIsSearchOpen(true); setIsSidebarOpen(false); }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.55rem',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(201, 162, 39, 0.2)',
+                  background: 'rgba(201, 162, 39, 0.06)',
+                  color: '#D4AF37',
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  fontFamily: '"Inter", sans-serif',
+                  minHeight: '44px',
                 }}
               >
                 🔍 Rechercher
               </button>
-
-              {/* Journal Button */}
               <button
-                onClick={() => setIsJournalOpen(true)}
+                onClick={() => { setIsJournalOpen(true); setIsSidebarOpen(false); }}
                 style={{
-                  background: isJournalOpen
-                    ? 'rgba(201, 162, 39, 0.15)'
-                    : 'rgba(201, 162, 39, 0.06)',
-                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.55rem',
                   borderRadius: '8px',
-                  padding: '0.4rem 0.75rem',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
+                  border: '1px solid rgba(201, 162, 39, 0.2)',
+                  background: 'rgba(201, 162, 39, 0.06)',
                   color: '#D4AF37',
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
                   fontFamily: '"Inter", sans-serif',
-                  letterSpacing: '0.02em',
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  marginLeft: '0.15rem',
+                  minHeight: '44px',
                 }}
               >
                 📜 Journal
               </button>
             </div>
-          )}
+          </aside>
+        )}
 
-          {/* Mobile controls */}
-          {isMobile && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}>
-              {/* Search Button (mobile) */}
+        {/* ─── MOBILE TOP BAR (hamburger) ─── */}
+        {isMobile && (
+          <div style={{
+            position: 'fixed',
+            top: '3px',
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: 'rgba(13, 17, 23, 0.92)',
+            backdropFilter: 'blur(12px)',
+            borderBottom: '1px solid rgba(201, 162, 39, 0.1)',
+            padding: '0 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '48px',
+          }}>
+            <button
+              onClick={() => scrollToSection('cover')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              <span style={{ fontSize: '1rem' }}>🪞</span>
+              <span style={{
+                fontFamily: '"Amiri", serif',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                color: '#D4AF37',
+              }}>
+                L&apos;Alchimie du Miroir
+              </span>
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <button
                 onClick={() => setIsSearchOpen(true)}
-                aria-label="Ouvrir la recherche"
+                aria-label="Rechercher"
                 style={{
                   background: 'rgba(201, 162, 39, 0.06)',
-                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  border: '1px solid rgba(201, 162, 39, 0.2)',
                   borderRadius: '8px',
-                  padding: '0.4rem 0.6rem',
+                  padding: '0.4rem 0.5rem',
                   cursor: 'pointer',
                   color: '#D4AF37',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   lineHeight: 1,
+                  minHeight: '36px',
                 }}
               >
                 🔍
               </button>
-
-              {/* Journal Button (mobile) */}
               <button
                 onClick={() => setIsJournalOpen(true)}
-                aria-label="Ouvrir le journal"
+                aria-label="Journal"
                 style={{
                   background: 'rgba(201, 162, 39, 0.06)',
-                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  border: '1px solid rgba(201, 162, 39, 0.2)',
                   borderRadius: '8px',
-                  padding: '0.4rem 0.6rem',
+                  padding: '0.4rem 0.5rem',
                   cursor: 'pointer',
                   color: '#D4AF37',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   lineHeight: 1,
+                  minHeight: '36px',
                 }}
               >
                 📜
               </button>
-
-              {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                aria-label="Menu"
                 style={{
                   background: 'none',
-                  border: '1px solid rgba(201, 162, 39, 0.3)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
                   borderRadius: '8px',
-                  padding: '0.4rem 0.6rem',
+                  padding: '0.4rem 0.5rem',
                   cursor: 'pointer',
                   color: '#C9A227',
-                  fontSize: '1.2rem',
+                  fontSize: '1.1rem',
+                  lineHeight: 1,
+                  minHeight: '36px',
                 }}
               >
-                {isMenuOpen ? '✕' : '☰'}
+                {isSidebarOpen ? '✕' : '☰'}
               </button>
             </div>
-          )}
-        </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobile && isMenuOpen && (
-          <div style={{
-            background: 'rgba(22, 27, 34, 0.98)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(201, 162, 39, 0.15)',
-            padding: '0.75rem 1.5rem 1rem',
-          }}>
-            {NAV_ITEMS.map(item => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  background: 'none',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.6rem 0.75rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: activeSection === item.id ? 600 : 400,
-                  color: activeSection === item.id
-                    ? '#D4AF37'
-                    : '#E8E4DC',
-                  fontFamily: '"Inter", sans-serif',
-                  textAlign: 'left',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
           </div>
         )}
-      </nav>
 
-      {/* Journal Panel Overlay */}
+        {/* ─── MAIN CONTENT ─── */}
+        <main style={{
+          flex: 1,
+          minWidth: 0,
+          paddingTop: isMobile ? '56px' : 0,
+        }}>
+          <div style={{
+            maxWidth: isMobile ? '100%' : '860px',
+            margin: '0 auto',
+            boxShadow: isMobile ? 'none' : '0 0 60px rgba(0,0,0,0.3)',
+          }}>
+            <FadeInSection><div id="sommaire"><Sommaire /></div></FadeInSection>
+            <FadeInSection><div id="fondations"><Foundations /></div></FadeInSection>
+            <FadeInSection><div id="protocole-a"><ProtocolA /></div></FadeInSection>
+            <FadeInSection><div id="protocole-b"><ProtocolB /></div></FadeInSection>
+            <FadeInSection><div id="protocole-c"><ProtocolC /></div></FadeInSection>
+            <FadeInSection><div id="protocole-d"><ProtocolD /></div></FadeInSection>
+            <FadeInSection><div id="protocole-e"><ProtocolE /></div></FadeInSection>
+            <FadeInSection><div id="protocole-f"><ProtocolF /></div></FadeInSection>
+            <FadeInSection><div id="protocole-g"><ProtocolG /></div></FadeInSection>
+            <FadeInSection><div id="protocole-h"><ProtocolH /></div></FadeInSection>
+            <FadeInSection><div id="protocole-i"><ProtocolI /></div></FadeInSection>
+            <FadeInSection><div id="protocole-j"><ProtocolJ /></div></FadeInSection>
+            <FadeInSection><div id="protocole-k"><ProtocolK /></div></FadeInSection>
+          </div>
+
+          {/* ─── Footer ─── */}
+          <footer style={{
+            marginTop: 'auto',
+            background: '#0D1117',
+            borderTop: '1px solid rgba(201, 162, 39, 0.12)',
+            padding: '2rem 1.5rem',
+            textAlign: 'center',
+          }}>
+            <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+              <div style={{
+                width: '100px',
+                height: '1px',
+                background: 'linear-gradient(to right, transparent, rgba(201, 162, 39, 0.25), transparent)',
+                margin: '0 auto 1.5rem',
+              }} />
+              <div style={{
+                color: 'rgba(201, 162, 39, 0.3)',
+                fontSize: '1.1rem',
+                marginBottom: '1.25rem',
+                letterSpacing: '0.5rem',
+              }}>
+                ❧ ❧ ❧
+              </div>
+              <p style={{
+                fontFamily: '"Amiri", serif',
+                fontSize: '1.05rem',
+                color: '#C9A227',
+                fontStyle: 'italic',
+                marginBottom: '0.75rem',
+                lineHeight: 1.7,
+              }}>
+                &laquo; Ce n&apos;est pas une thérapie de plus.
+                C&apos;est une thérapie qui s&apos;ouvre à l&apos;Infini. &raquo;
+              </p>
+              <p style={{
+                fontSize: '0.78rem',
+                color: '#B5AFA8',
+                marginBottom: '0.25rem',
+              }}>
+                — Adapté d&apos;Ibn Arabî
+              </p>
+              <div style={{
+                width: '50px',
+                height: '1px',
+                background: 'linear-gradient(to right, transparent, rgba(201, 162, 39, 0.3), transparent)',
+                margin: '1.25rem auto',
+              }} />
+              <p style={{
+                fontSize: '0.72rem',
+                color: '#9B9590',
+                lineHeight: 1.6,
+              }}>
+                L&apos;Alchimie du Miroir — Manuel de Protocoles de Méditation Thérapeutique
+                <br />
+                Fondé sur la méthode soufie du Tadaburr
+                <br />
+                Cadre Hybride : Trauma-Informed · TCC · Spiritualité Islamique
+              </p>
+              <p style={{
+                fontSize: '0.65rem',
+                color: 'rgba(155, 149, 144, 0.5)',
+                marginTop: '0.75rem',
+              }}>
+                © 2025 — Usage professionnel réservé
+              </p>
+            </div>
+          </footer>
+        </main>
+      </div>
+
+      {/* ─── Journal Panel Overlay ─── */}
       {isJournalOpen && (
         <div
           className="journal-overlay-enter"
@@ -490,12 +811,12 @@ export default function Home() {
             position: 'fixed',
             inset: 0,
             background: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 199,
+            zIndex: 299,
           }}
         />
       )}
 
-      {/* Journal Panel */}
+      {/* ─── Journal Panel ─── */}
       {isJournalOpen && (
         <div
           className="journal-panel-enter"
@@ -508,13 +829,12 @@ export default function Home() {
             background: 'rgba(22, 27, 34, 0.98)',
             backdropFilter: 'blur(16px)',
             borderLeft: '1px solid rgba(201, 162, 39, 0.2)',
-            zIndex: 200,
+            zIndex: 300,
             display: 'flex',
             flexDirection: 'column',
             boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.4)',
           }}
         >
-          {/* Close button */}
           <button
             onClick={() => setIsJournalOpen(false)}
             aria-label="Fermer le journal"
@@ -535,7 +855,6 @@ export default function Home() {
               fontSize: '1rem',
               padding: 0,
               lineHeight: 1,
-              transition: 'background 0.2s ease',
               zIndex: 1,
             }}
           >
@@ -545,234 +864,52 @@ export default function Home() {
         </div>
       )}
 
-      {/* Main Content */}
-      <main style={{ flex: 1 }}>
-        <div id="cover">
-          <CoverPage />
-        </div>
+      {/* ─── Search Dialog ─── */}
+      <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
-        <div
+      {/* ─── Floating Search Button (mobile only) ─── */}
+      {isMobile && (
+        <button
+          onClick={() => setIsSearchOpen(true)}
+          aria-label="Rechercher (Ctrl+K)"
           style={{
-            maxWidth: '960px',
-            margin: '0 auto',
-            boxShadow: '0 0 80px rgba(0,0,0,0.5), 0 0 1px rgba(197,165,133,0.15) inset',
+            position: 'fixed',
+            bottom: '1.5rem',
+            right: '1.5rem',
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            border: '1.5px solid rgba(201, 162, 39, 0.4)',
+            background: 'rgba(13, 17, 23, 0.9)',
+            backdropFilter: 'blur(8px)',
+            color: '#D4AF37',
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 90,
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+            padding: 0,
+            lineHeight: 1,
           }}
         >
-          <FadeInSection>
-            <div id="sommaire">
-              <Sommaire />
-            </div>
-          </FadeInSection>
+          🔍
+        </button>
+      )}
 
-          <FadeInSection>
-            <div id="fondations">
-              <Foundations />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-a">
-              <ProtocolA />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-b">
-              <ProtocolB />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-c">
-              <ProtocolC />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-d">
-              <ProtocolD />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-e">
-              <ProtocolE />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-f">
-              <ProtocolF />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-g">
-              <ProtocolG />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-h">
-              <ProtocolH />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-i">
-              <ProtocolI />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-j">
-              <ProtocolJ />
-            </div>
-          </FadeInSection>
-
-          <FadeInSection>
-            <div id="protocole-k">
-              <ProtocolK />
-            </div>
-          </FadeInSection>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer style={{
-        marginTop: 'auto',
-        background: '#0D1117',
-        borderTop: '1px solid rgba(201, 162, 39, 0.15)',
-        padding: '2rem 1.5rem',
-        textAlign: 'center',
-      }}>
-        <div style={{
-          maxWidth: '600px',
-          margin: '0 auto',
-        }}>
-          {/* Subtle separator line above footer content */}
-          <div style={{
-            width: '120px',
-            height: '1px',
-            background: 'linear-gradient(to right, transparent, rgba(201, 162, 39, 0.25), transparent)',
-            margin: '0 auto 1.5rem auto',
-          }} />
-
-          {/* Ornament */}
-          <div style={{
-            color: 'rgba(201, 162, 39, 0.3)',
-            fontSize: '1.2rem',
-            marginBottom: '1.5rem',
-            letterSpacing: '0.5rem',
-          }}>
-            ❧ ❧ ❧
-          </div>
-
-          <p style={{
-            fontFamily: '"Amiri", serif',
-            fontSize: '1.1rem',
-            color: '#C9A227',
-            fontStyle: 'italic',
-            marginBottom: '1rem',
-            lineHeight: 1.7,
-          }}>
-            « Ce n&apos;est pas une thérapie de plus.
-            C&apos;est une thérapie qui s&apos;ouvre à l&apos;Infini. »
-          </p>
-          <p style={{
-            fontSize: '0.8rem',
-            color: '#B5AFA8',
-            marginBottom: '0.25rem',
-          }}>
-            — Adapté d&apos;Ibn Arabî
-          </p>
-
-          <div style={{
-            width: '60px',
-            height: '1px',
-            background: 'linear-gradient(to right, transparent, rgba(201, 162, 39, 0.3), transparent)',
-            margin: '1.5rem auto',
-          }} />
-
-          <p style={{
-            fontSize: '0.75rem',
-            color: '#B5AFA8',
-            lineHeight: 1.6,
-          }}>
-            L&apos;Alchimie du Miroir — Manuel de Protocoles de Méditation Thérapeutique
-            <br />
-            Fondé sur la méthode soufie du Tadaburr
-            <br />
-            Cadre Hybride : Trauma-Informed · TCC · Spiritualité Islamique
-          </p>
-
-          <p style={{
-            fontSize: '0.7rem',
-            color: 'rgba(181, 175, 168, 0.6)',
-            marginTop: '1rem',
-          }}>
-            © 2025 — Usage professionnel réservé — Pour Thérapeutes, Psychologues et Professionnels de Santé Mentale
-          </p>
-        </div>
-      </footer>
-
-      {/* Floating Search Button (bottom-left) */}
+      {/* ─── Back-to-Top Button ─── */}
       <button
-        onClick={() => setIsSearchOpen(true)}
-        aria-label="Rechercher (Ctrl+K)"
-        style={{
-          position: 'fixed',
-          bottom: '2rem',
-          left: '2rem',
-          width: '44px',
-          height: '44px',
-          borderRadius: '50%',
-          border: '1.5px solid rgba(201, 162, 39, 0.5)',
-          background: 'rgba(13, 17, 23, 0.85)',
-          backdropFilter: 'blur(8px)',
-          color: '#D4AF37',
-          fontSize: '1.1rem',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 90,
-          opacity: showBackToTop ? 1 : 0,
-          pointerEvents: showBackToTop ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease, background 0.2s ease',
-          padding: 0,
-          lineHeight: 1,
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.15)';
-          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.8)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.background = 'rgba(13, 17, 23, 0.85)';
-          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.5)';
-        }}
-      >
-        🔍
-      </button>
-
-      {/* Search Dialog */}
-      <SearchDialog
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
-
-      {/* Back-to-Top Button */}
-      <button
-        onClick={scrollToTop}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="Retour en haut"
         style={{
           position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
+          bottom: isMobile ? '5rem' : '2rem',
+          right: isMobile ? '1.5rem' : '2rem',
           width: '44px',
           height: '44px',
           borderRadius: '50%',
-          border: '1.5px solid rgba(201, 162, 39, 0.5)',
+          border: '1.5px solid rgba(201, 162, 39, 0.4)',
           background: 'rgba(13, 17, 23, 0.85)',
           backdropFilter: 'blur(8px)',
           color: '#D4AF37',
@@ -784,17 +921,9 @@ export default function Home() {
           zIndex: 90,
           opacity: showBackToTop ? 1 : 0,
           pointerEvents: showBackToTop ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease, background 0.2s ease',
+          transition: 'opacity 0.3s ease',
           padding: 0,
           lineHeight: 1,
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.background = 'rgba(201, 162, 39, 0.15)';
-          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.8)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.background = 'rgba(13, 17, 23, 0.85)';
-          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201, 162, 39, 0.5)';
         }}
       >
         ↑
