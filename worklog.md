@@ -585,6 +585,70 @@ Agent: frontend-styling-expert
 Task: Styling improvements across book components
 
 Work Log:
+- Enhanced ProtocolHeader with animated badge ring, title glow, bottom ornament, vignette overlay
+- Enhanced BookTable with header shimmer, staggered row entrance, improved hover states
+- Enhanced QuoteBlock with floating animation, accent glow, decorative light source, styled citation
+- Enhanced ExerciseBox with entrance slide, hover lift, label pulse, green accent line
+- Added 14 new CSS keyframe animations to globals.css
+- ESLint: 0 errors
+
+Stage Summary:
+- All 4 book components visually improved with new CSS animations
+- 14 new keyframe animations added
+- No component logic changed — styling only
+
+---
+Task ID: 20
+Agent: features-developer
+Task: Add reading progress tracker and font size adjuster
+
+Work Log:
+- Added reading progress tracker using IntersectionObserver
+- Green checkmarks in sidebar nav for visited sections
+- Progress counter (X/13) in sidebar footer
+- Font size adjuster: A- (15px), A (17px), A+ (19px) with localStorage persistence
+- ESLint: 0 errors
+
+Stage Summary:
+- Two new features fully functional
+- VLM rating: 8/10 for sidebar
+
+---
+Task ID: 21
+Agent: web-dev-review-3
+Task: Round summary
+
+## Current Project Status / Assessment
+
+### Fixes Applied
+1. GitHub Pages build error — deleted /api/route.ts
+2. Hydration mismatch — useSyncExternalStore for isMobile
+3. GitHub Actions workflow added for auto-deploy
+4. basePath set for repo-specific GitHub Pages URL
+5. .nojekyll added
+
+### Styling (14 new CSS animations across 4 components)
+### New Features (reading progress tracker + font size adjuster)
+
+## Unresolved Issues
+1. GitHub Pages needs manual activation in repo Settings
+2. MunajatTextarea not applied to all protocols
+3. Part III Annexes not built
+4. Deep QA of protocols G-K not done
+
+## Priority Recommendations
+1. Activate GitHub Pages (user action needed)
+2. Deep QA all 12 protocols
+3. Apply MunajatTextarea to remaining protocols
+4. Build Part III Annexes
+5. Add dark/light theme toggle
+
+---
+Task ID: 19
+Agent: frontend-styling-expert
+Task: Styling improvements across book components
+
+Work Log:
 - Read worklog.md and all 5 target files to understand project state and current styling
 - Added 14 new CSS keyframe animations and utility classes to globals.css
 - Enhanced ProtocolHeader.tsx with vignette overlay, animated badge ring, title glow, decorative bottom ornament with diamond
